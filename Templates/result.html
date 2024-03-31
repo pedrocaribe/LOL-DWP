@@ -1,37 +1,119 @@
-{% extends "layout.html" %}
-
-{% block title %}
-    HIEPW v1.0 - Result
-{% endblock %}
-
+{% extends "layout.html" %} {% block title %} HIEPW v1.0 - Result {% endblock %}
 {% block main %}
-    <div class="result_header">
-        <h1>{{ h }}</h1>
-        <div class="stats-container">
-            <div class="stats-box">
-            </div>
-            <div class="stats-box">
-                <p>Match Date: {{ matches['match_date'] }}</p>
-                <p>Match Duration: {{ matches['match_duration'] }} minutes</p>
-                <p>Score (AI): {{ ai_score }}</p>
-                <p>{{ matches['match_type'] }}</p>  </div>
-            <div class="stats-box">
-                <img src="path/to/champion/image.png" alt="{{ matches['s1_champion_name'] }} image">  </div>
-            <div class="stats-box">
-                <h2>{{ matches['s1_player_name'] }}</h2>
-                <div class="stats-row">
-                    <p>K/D/A: {{ matches['s1_kills'] }}/{{ matches['s1_deaths'] }}/{{ matches['s1_assists'] }}</p>
-                </div>
-                <table class="items-table">
-                    <tr>
-                    <td><img src="path/to/item1/image.png" alt="Item 1"></td>  <td><img src="path/to/item2/image.png" alt="Item 2"></td>  <td><img src="path/to/item3/image.png" alt="Item 3"></td>  </tr>
-                    <tr>
-                    <td><img src="path/to/item4/image.png" alt="Item 4"></td>  <td><img src="path/to/item5/image.png" alt="Item 5"></td>  <td><img src="path/to/item6/image.png" alt="Item 6"></td>  </tr>
-                </table>
-            </div>
-            <div class="stats-box">
-                <p>Elo: {{ playerElo }}</p>
-            </div>
-        </div>
-    </div>
+<div class="result_header">
+    <h1>{{ h }}</h1>
+    <table class="stats-container">
+        {% for item in matches %}
+        <table style="border-collapse: collapse; width: 100%" border="1">
+            <tbody>
+                <tr>
+                    <td style="width: 100%">
+                        <table
+                            style="border-collapse: collapse; width: 100%"
+                            border="1"
+                        >
+                            <tbody>
+                                <tr>
+                                    <td style="width: 33.3333%">
+                                        <table style="border-collapse: collapse; width: 100%;" border="1">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="width: 100%">
+                                                        <h5>{{ item['match_type'] }}</h5>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 100%">
+                                                        <p>Match Date: {{ item['match_date'] }}</p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 100%">
+                                                        <div>{{ item['win_lose'] }} {{ item['match_duration'] }}</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td style="width: 33.3333%">
+                                        <table style="border-collapse: collapse; width: 100%;" border="1">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="width: 100%">
+                                                        <table style="border-collapse: collapse; width: 100%;" border="1">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="width: 25%;">
+                                                                        <img src="path/to/champion/image.png" alt="{{ item['s1_champion_name'] }} image"/>
+                                                                    </td>
+                                                                    <td style="width: 25%;">
+                                                                        <table style="border-collapse: collapse; width: 100%;" border="1">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td style="width: 100%;">
+                                                                                        Sum1
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td style="width: 100%;">
+                                                                                        Sum2
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                    <td style="width: 25%;">
+                                                                        <table style="border-collapse: collapse; width: 100%; height: 36px;" border="1">
+                                                                            <tbody>
+                                                                                <tr style="height: 18px;">
+                                                                                    <td style="width: 100%; height: 18px;">
+                                                                                        Rune1
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr style="height: 18px;">
+                                                                                    <td style="width: 100%; height: 18px;">
+                                                                                        Rune2
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                    <td style="width: 25%;">
+                                                                        KDA: {{ item['s1_kills'] }}/{{ item['s1_deaths'] }}/{{ item['s1_assists'] }}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 100%">
+                                                        <table style="border-collapse: collapse; width: 100%;" border="1">
+                                                            <tbody>
+                                                            <tr>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item1/image.png" alt="Item 1" /></td>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item2/image.png" alt="Item 2" /></td>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item3/image.png" alt="Item 3" /></td>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item4/image.png" alt="Item 4" /></td>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item5/image.png" alt="Item 5" /></td>
+                                                            <td style="width: 16.6667%;"><img src="path/to/item6/image.png" alt="Item 6" /></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                                </table>
+                                </td>
+                                    <td style="width: 33.3333%">11</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}
