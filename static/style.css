@@ -144,5 +144,11 @@ button {
     margin: 0 auto;
 }
 
-.result_header{
+.stats-container{
+    -moz-column-count: 3;
+    -moz-column-gap: 70px;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 70px;
+    column-count: 3;
+    column-gap: 70px;
 }
