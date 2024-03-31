@@ -1,0 +1,45 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+    HIEPW v1.0
+{% endblock %}
+
+{% block main %}
+<form action="/search" method="post" id="search">
+    <div class="player">
+        <div class="gameName">
+        <input type="text" id="game_name_1" name="game_name_1" placeholder="{{ gn1 }}" minlength="3" maxlength="16" required>
+        </div>
+        #
+        <div class="tagLine">
+        <input class="tagLine" type="text" id="tag_line_1" name="tag_line_1" placeholder="{{ tg1 }}" minlength="3" maxlength="5" required>
+        </div>
+
+    </div>
+    <div class="player">
+        <input type="text" id="game_name_2" name="game_name_2" placeholder="{{ gn2 }}" minlength="3" maxlength="16" required>
+        # 
+        <div class="tagLine">
+        <input class="tagLine" type="text" id="tag_line_2" name="tag_line_2" placeholder="{{ tg2 }}" minlength="3" maxlength="5" required>
+        </div>
+
+    </div>
+    <div>
+        <button class = "btn" type="submit" form="search">
+        <span class="circle">
+            <i class="fa-solid fa-angle-right"></i>
+        </span>
+        <span class="text">Search</span>
+        </a>
+    </form>
+    </div>
+    <div class="input_feedback">
+        {% if failed_game_name_1 %}
+            <div id="input_feedback_game_name_1" name="input_feedback_game_name_1">Summoner 1 Combination of Game Name and TagLine NOT Found.</div>
+        {% endif %}
+        {% if failed_game_name_2 %}
+            <div id="input_feedback_game_name_2" name="input_feedback_game_name_2">Summoner 2 Combination of Game Name and TagLine NOT Found.</div>
+        {% endif %}
+    </div>
+{% endblock %}
