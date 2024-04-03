@@ -7,12 +7,14 @@ from flask_session import Session
 from flask import Flask, flash, redirect, render_template, session, request
 from settings import *
 import flask
+from bs4 import BeautifulSoup
 
 # Configure application
 app = flask.Flask(__name__)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -22,16 +24,30 @@ def index():
 
 
 @app.route("/search", methods=['GET','POST'])
-def search():
+async def search():
     """Perform Search within RIOT API"""
 
     game_name_1 = request.form.get("game_name_1")
     tag_line_1 = request.form.get("tag_line_1")
     game_name_2 = request.form.get("game_name_2")
     tag_line_2 = request.form.get("tag_line_2")
+    region = request.form.get("region")
+
+    regional = {
+    "AMERICAS":['BR1','LA1','LA2','NA1',],
+    "ASIA":['JP1','KR','PH2','SG2','TW2','TH2','VN2','PH1','SG1','TW1','VN1','TH1'],
+    "EUROPE":['EUN1','EUW1','RU1','TR1'],
+    "SEA":['OC1']
+    }
+
+    regional_choice = next(key for key, regions in regional.items())
+
+    ACCOUNT_V1 = f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
+    MATCH_V5 = f"https://{regional_choice}.api.riotgames.com/lol/match/v5/matches/"
+    SUMMONER_V4 = f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/"
 
     start1 = time.time()
-    req1 = requests.get(ACCOUNT_V1+game_name_1+'/'+tag_line_1+'?api_key='+RIOT_TOKEN)
+    req1 = requests.get(f'{ACCOUNT_V1}{game_name_1}/{tag_line_1}?api_key={RIOT_TOKEN}')
     
     puuid_1 = req1.json()['puuid'] if req1 else False
 
@@ -39,7 +55,7 @@ def search():
     time_process_player__info_1 = round(end1 - start1, 2)
 
     start2 = time.time()
-    req2 = requests.get(ACCOUNT_V1+game_name_2+'/'+tag_line_2+'?api_key='+RIOT_TOKEN)
+    req2 = requests.get(f'{ACCOUNT_V1}{game_name_2}/{tag_line_2}?api_key={RIOT_TOKEN}')
     puuid_2 = req2.json()['puuid'] if req2 else False
 
     end2 = time.time()
@@ -50,12 +66,12 @@ def search():
     if puuid_1 and puuid_2:
 
         start3 = time.time()
-        matches_player_1 = requests.get(MATCH_V5+'by-puuid/'+puuid_1+'/ids?start=0&count=100&api_key='+RIOT_TOKEN).json()
+        matches_player_1 = requests.get(f'{MATCH_V5}by-puuid/{puuid_1}/ids?start=0&count=100&api_key={RIOT_TOKEN}').json()
         end3 = time.time()
         time_process_player_1_matches = round(end3 - start3, 2)
 
         start4 = time.time()
-        matches_player_2 = requests.get(MATCH_V5+'by-puuid/'+puuid_2+'/ids?start=0&count=100&api_key='+RIOT_TOKEN).json()
+        matches_player_2 = requests.get(f'{MATCH_V5}by-puuid/{puuid_2}/ids?start=0&count=100&api_key={RIOT_TOKEN}').json()
         end4 = time.time()
         time_process_player_2_matches = round(end4 - start4, 2)
 
@@ -66,7 +82,8 @@ def search():
             match_stats = list()
 
             for each in played_with:
-                req = requests.get(MATCH_V5+each+'?api_key='+RIOT_TOKEN).json()
+                req = requests.get(f'{MATCH_V5}{each}?api_key={RIOT_TOKEN}').json()
+
                 p1 = req['metadata']['participants'].index(puuid_1)
                 p2 = req['metadata']['participants'].index(puuid_2)
                 p1_stats_per_match = req['info']['participants'][p1]
@@ -78,18 +95,116 @@ def search():
                     "p2":p2_stats_per_match
                 })
 
+            async def date_sort(e):
+                return e['data']['info']['gameCreation']
+
+            match_stats.sort(reverse=True, key=date_sort)
             
             match_info = list()
 
             for each in match_stats:
 
+                item_numbers_p1 = [each['p1'][f'item{i}'] for i in range(6)]
+                item_numbers_p2 = [each['p2'][f'item{i}'] for i in range(6)]
+
+                async def get_latest_ddragon(package="champion"):
+                    version_url = "https://ddragon.leagueoflegends.com/api/versions.json"
+                    latest_version = await requests.get(version_url).json()[0]
+
+                    if package == "champion":
+                        champions_url = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/champion.json"
+                        
+                        ddragon = await requests.get(champions_url)
+                        champions = ddragon.json()["data"]
+
+                        return champions, latest_version
+        
+                    if package == "spell":
+                        spells_url = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/summoner.json"
+
+                        ddragon = await requests.get(spells_url)
+                        spells = ddragon.json()["data"]
+
+                        return spells, latest_version
+
+                        
+                
+                async def get_champions_by_key(key):
+                    champions, latest_version = await get_latest_ddragon("champion")
+
+                    for champion in champions:
+                        if champions[champion]["key"] == str(key):
+                            return champions[champion], latest_version
+                
+                async def get_spell_by_key(key):
+                    spells, latest_version = await get_latest_ddragon("spell")
+
+                    for spell in spells:
+                        if spells[spell]["key"] == str(key):
+                            return spells[spell], latest_version
+                        
+
+
+                async def get_image_path(key_number, package=None):
+                    
+                    if package == "champion":
+                        
+                        champion, latest_version = await get_champions_by_key(key_number)
+                        champion_name = champion["id"]
+
+                        base_url = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/img/champion/"
+
+                        return f"{base_url}/{champion_name}"
+                    
+                    if package == "spell":
+                        
+                        spell, latest_version = await get_spell_by_key(key_number)
+                        spell_name = spell["id"]
+
+                        base_url = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/img/spell/"
+
+                        return f"{base_url}/{spell_name}"
+                    
+                    return None
+                
+
+                                                                    # PARA OS ITENS
+
+
+                                                                    # async def get_image_list(item_numbers, folder_path="./static/items/"):
+                                                                    #     image_paths = []
+                                                                    #     for item_number in item_numbers:
+                                                                    #         image_path = get_image_path(item_number)
+                                                                    #         if image_path:
+                                                                    #             image_paths.append(image_path)
+                                                                        
+                                                                    #     return image_paths
+                                                                    
+                                                                    # image_list_p1 = get_image_list(item_numbers_p1)
+                                                                    # image_list_p2 = get_image_list(item_numbers_p2)
+
+
+                champion_image_p1 = get_image_path(each['p1']['championId'], "champion")
+                champion_image_p2 = get_image_path(each['p2']['championId'], "champion")
+                s1_summ1_img = get_image_path(each['p1']['summoner1Id'], "spell")
+                s1_summ2_img = get_image_path(each['p1']['summoner2Id'], "spell")
+                s2_summ1_img = get_image_path(each['p2']['summoner1Id'], "spell")
+                s2_summ2_img = get_image_path(each['p2']['summoner2Id'], "spell")
+
                 match_info.append({
                     "match_id":each['data']['metadata']['matchId'],
-                    'match_date':datetime.fromtimestamp(each['data']['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M:%S"), 
-                    "match_duration":f"{each['data']['info']['gameDuration']//60}:{each['data']['info']['gameDuration']%60} min",
+                    'match_date':datetime.fromtimestamp(each['data']['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M"), 
+                    "match_duration":f"{each['data']['info']['gameDuration']//60}:{each['data']['info']['gameDuration']%60}",
                     "match_type":each['data']['info']['gameMode'],
+
+
+
+                    # P1
+                    "p1_win_lose":"Win" if each['p1']['win'] else "Lose",
                     "s1_champion_name":each['p1']['championName'],
-                    "s1_player_name":each['p1']['summonerName'],
+                    "s1_champion_img":champion_image_p1,
+                    "s1_player_name":each['p1']['riotIdGameName'],
+                    "s1_player_tag":each['p1']['riotIdTagline'],
                     "s1_kills":each['p1']['kills'],
                     "s1_deaths":each['p1']['deaths'],
                     "s1_assists":each['p1']['assists'],
@@ -102,9 +217,21 @@ def search():
                     "s1_item5":each['p1']['item5'],
                     "s1_item6":each['p1']['item6'],
                     "s1_lane":each['p1']['lane'],
+                    "s1_items":image_list_p1,
+                    "s1_summ1_img":s1_summ1_img,
+                    "s1_summ2_img":s1_summ2_img,
 
-                    
+
+
+
+
+                    # MUDAR TUDO PRA BAIXO PRA INCLUIR DADOS DO P2
+
+                    "p2_win_lose":"Win" if each['p2']['win'] else "Lose",
                     "s2_champion_name":each['p2']['championName'],
+                    "s2_champion_img":champion_image_p2,
+                    "s2_player_name":each['p2']['riotIdGameName'],
+                    "s2_player_tag":each['p2']['riotIdTagline'],
                     "s2_player_name":each['p2']['summonerName'],
                     "s2_kills":each['p2']['kills'],
                     "s2_deaths":each['p2']['deaths'],
@@ -118,8 +245,13 @@ def search():
                     "s2_item5":each['p2']['item5'],
                     "s2_item6":each['p2']['item6'],
                     "s2_lane":each['p2']['lane'],
+                    "s2_items":image_list_p2,
+                    "s2_summ1_img":s2_summ1_img,
+                    "s2_summ2_img":s2_summ2_img
                     
                     })
+
+            print(len(match_info))
 
             return render_template("result.html", h=f"Yes, both players have played with each other in {len(played_with)} games", matches=match_info)
 
