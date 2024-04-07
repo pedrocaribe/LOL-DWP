@@ -46,6 +46,8 @@ async def search():
     tag_line_2 = request.args.get("tag_line_2")
     region = request.args.get("region")
 
+    """https://leagueoflegends.fandom.com/wiki/Servers"""
+    
     regional = {
     "AMERICAS":['BR1','LA1','LA2','NA1',],
     "ASIA":['JP1','KR','PH2','SG2','TW2','TH2','VN2','PH1','SG1','TW1','VN1','TH1'],
