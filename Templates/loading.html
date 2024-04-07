@@ -2,29 +2,39 @@
 {% block title %} HIEPW v1.0 - LOADING... {%endblock %} 
 {% block main %}
 
-<div class="loading" style="display: flex; justify-content: center; align-items: center; align-content: center;">
-    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
-        <div class="wheel"></div>
-        <div class="hamster">
-            <div class="hamster__body">
-                <div class="hamster__head">
-                    <div class="hamster__ear"></div>
-                    <div class="hamster__eye"></div>
-                    <div class="hamster__nose"></div>
+<div class="loading">
+    <div style="display: flex; justify-content: center;">
+        <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+            <div class="wheel"></div>
+            <div class="hamster">
+                <div class="hamster__body">
+                    <div class="hamster__head">
+                        <div class="hamster__ear"></div>
+                        <div class="hamster__eye"></div>
+                        <div class="hamster__nose"></div>
+                    </div>
+                    <div class="hamster__limb hamster__limb--fr"></div>
+                    <div class="hamster__limb hamster__limb--fl"></div>
+                    <div class="hamster__limb hamster__limb--br"></div>
+                    <div class="hamster__limb hamster__limb--bl"></div>
+                    <div class="hamster__tail"></div>
                 </div>
-                <div class="hamster__limb hamster__limb--fr"></div>
-                <div class="hamster__limb hamster__limb--fl"></div>
-                <div class="hamster__limb hamster__limb--br"></div>
-                <div class="hamster__limb hamster__limb--bl"></div>
-                <div class="hamster__tail"></div>
             </div>
+            <div class="spoke"></div>
         </div>
-        <div class="spoke"></div>
     </div>
-    
-    <script type="text/javascript">
-        window.location.href = `/search?game_name_1={{ game_name_1 }}&tag_line_1={{ tag_line_1 }}&game_name_2={{ game_name_2 }}&tag_line_2={{ tag_line_2}}&region={{ region }}`
-    </script>
-</div>
+
+    <div class="message-container"">
+        <span class="message">Finding Matches for Player 1</span>
+        <span class="message">Finding Matches for Player 2</span>
+        <span class="message">Intersecting Matches</span>
+        <span class="message">Gathering Matches Data</span>
+        <span class="message">Building Site</span>
+    </div>
+</div>    
+<script type="text/javascript">
+    window.location.href = `/search?game_name_1={{ game_name_1 }}&tag_line_1={{ tag_line_1 }}&game_name_2={{ game_name_2 }}&tag_line_2={{ tag_line_2}}&region={{ region }}`
+</script>
+
 
 {% endblock %}
