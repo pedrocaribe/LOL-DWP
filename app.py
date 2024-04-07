@@ -23,15 +23,28 @@ async def index():
     return render_template("index.html", gn1="Summoner 1 Game Name", gn2="Summoner 2 Game Name", tg1="Tag", tg2="Tag", failed_game_name_1=False, failed_game_name_2=False)
 
 
-@app.route("/search", methods=['GET','POST'])
-async def search():
-    """Perform Search within RIOT API"""
-
+@app.route("/loading", methods=['GET', 'POST'])
+async def loading():
+    print("in loading")
     game_name_1 = request.form.get("game_name_1")
     tag_line_1 = request.form.get("tag_line_1")
     game_name_2 = request.form.get("game_name_2")
     tag_line_2 = request.form.get("tag_line_2")
     region = request.form.get("region")
+
+    print("out of loading")
+    return render_template("loading.html", game_name_1=game_name_1, tag_line_1=tag_line_1, game_name_2=game_name_2, tag_line_2=tag_line_2, region=region)
+
+
+@app.route("/search", methods=['GET','POST'])
+async def search():
+    """Perform Search within RIOT API"""
+
+    game_name_1 = request.args.get("game_name_1")
+    tag_line_1 = request.args.get("tag_line_1")
+    game_name_2 = request.args.get("game_name_2")
+    tag_line_2 = request.args.get("tag_line_2")
+    region = request.args.get("region")
 
     regional = {
     "AMERICAS":['BR1','LA1','LA2','NA1',],
@@ -260,8 +273,6 @@ async def search():
                     
                     })
 
-            print(len(match_info))
-
             return render_template("result.html", h=f"Yes, both players have played with each other in {len(played_with)} games", matches=match_info)
 
             start5 = time.time()
@@ -273,10 +284,10 @@ async def search():
                 print(cached_matches)
         else:
 
-            return render_template("result.html", h="No, both players have Not played togheter in the last 100 games")
+            return render_template("result.html", h="No, both players have Not played togheter in the last 100 games", loading=False)
     
     else:
         failed_game_name_1 = True if not req1 else False
         failed_game_name_2 = True if not req2 else False
 
-        return render_template("index.html", gn1=game_name_1, gn2=game_name_2, tg1=tag_line_1, tg2=tag_line_2, failed_game_name_1=failed_game_name_1, failed_game_name_2=failed_game_name_2)
+        return render_template("index.html", gn1=game_name_1, gn2=game_name_2, tg1=tag_line_1, tg2=tag_line_2, failed_game_name_1=failed_game_name_1, failed_game_name_2=failed_game_name_2, loading=False)
