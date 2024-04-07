@@ -6,8 +6,9 @@
 {% endblock %}
 
 {% block main %}
-<form action="/search" method="post" id="search">
+<form action="/loading" method="post" id="search" class="search-form">
     <div class="player">
+        
         <div class="gameName">
         <input type="text" id="game_name_1" name="game_name_1" placeholder="{{ gn1 }}" minlength="3" maxlength="16" required>
         </div>
@@ -25,13 +26,63 @@
         </div>
 
     </div>
+    <div class="region-container">
+        <label for="region-BR1" class="region-input" >
+            <input type="radio" id="region-BR1" name="region" value="BR1" checked>BR1</button>
+        </label>
+        <label for="region-EUN1" class="region-input" >
+            <input type="radio" id="region-EUN1" name="region" value="EUN1" checked>EUN1</button>
+        </label>
+        <label for="region-EUW1" class="region-input" >
+            <input type="radio" id="region-EUW1" name="region" value="EUW1" checked>EUW1</button>
+        </label>
+        <label for="region-JP1" class="region-input" >
+            <input type="radio" id="region-JP1" name="region" value="JP1" checked>JP1</button>
+        </label>
+        <label for="region-KR" class="region-input" >
+            <input type="radio" id="region-KR" name="region" value="KR" checked>KR</button>
+        </label>
+        <label for="region-LA1" class="region-input" >
+            <input type="radio" id="region-LA1" name="region" value="LA1" checked>LA1</button>
+        </label>
+        <label for="region-LA2" class="region-input" >
+            <input type="radio" id="region-LA2" name="region" value="LA2" checked>LA2</button>
+        </label>
+        <label for="region-NA1" class="region-input" >
+            <input type="radio" id="region-NA1" name="region" value="NA1" checked>NA1</button>
+        </label>
+        <label for="region-OC1" class="region-input" >
+            <input type="radio" id="region-OC1" name="region" value="OC1" checked>OC1</button>
+        </label>
+        <label for="region-PH2" class="region-input" >
+            <input type="radio" id="region-PH2" name="region" value="PH2" checked>PH2</button>
+        </label>
+        <label for="region-RU" class="region-input" >
+            <input type="radio" id="region-RU" name="region" value="RU" checked>RU</button>
+        </label>
+        <label for="region-SG2" class="region-input" >
+            <input type="radio" id="region-SG2" name="region" value="SG2" checked>SG2</button>
+        </label>
+        <label for="region-TH2" class="region-input" >
+            <input type="radio" id="region-TH2" name="region" value="TH2" checked>TH2</button>
+        </label>
+        <label for="region-TR1" class="region-input" >
+            <input type="radio" id="region-TR1" name="region" value="TR1" checked>TR1</button>
+        </label>
+        <label for="region-TW2" class="region-input" >
+            <input type="radio" id="region-TW2" name="region" value="TW2" checked>TW2</button>
+        </label>
+        <label for="region-VN2" class="region-input" >
+            <input type="radio" id="region-VN2" name="region" value="VN2" checked>VN2</button>
+        </label>
+    </div>
+    <input type="hidden" id="loading" name="loading" value="True"></input>
     <div>
         <button class = "btn" type="submit" form="search">
         <span class="circle">
             <i class="fa-solid fa-angle-right"></i>
         </span>
         <span class="text">Search</span>
-        </a>
     </form>
     </div>
     <div class="input_feedback">
