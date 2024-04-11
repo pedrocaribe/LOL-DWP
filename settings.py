@@ -10,7 +10,7 @@ if DEBUG:
     env_path = Path('.') /  '.env.debug'
     load_dotenv(dotenv_path=env_path)
     from settings_files._global import *
-    print(f'{Fore.WHITE + Back.YELLOW}We are in DEEBUG mode{Style.RESET_ALL}')
+    print(f'{Fore.WHITE + Back.YELLOW}We are in DEBUG mode{Style.RESET_ALL}')
 
 else:
     env_path = Path('.') / '.env'
