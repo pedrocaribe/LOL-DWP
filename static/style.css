@@ -7,6 +7,18 @@ body {
     color: #ded8f4;
     text-align: center;
     resize: none;
+    display: block;
+}
+
+.root {
+    min-width: 1300px;
+    height: 100%;
+}
+.left-ad-box{
+    flex: 1 1 0%;
+}
+.right-ad-box{
+    flex: 1 1 0%;
 }
 
 .container {
@@ -174,24 +186,42 @@ button {
 .match-container {
     display: flex;
     justify-content: center;
-    background-color: red;
     margin: 5px;
     padding: 1px;
     border-radius: 7px;
     height: 100%;
+    border: rgb(193, 209, 225);
+}
+
+.win {
+    background-color: rgb(93, 156, 235);
+    opacity: 100%;
+}
+.lose {
+    background-color: rgb(227, 126, 116);
+    opacity: 100%;
+}
+
+.text-lose{
+    color: rgb(229, 116, 116);
+    opacity: 100%;
+}
+
+.text-win {
+    color: rgb(93, 156, 235);
+    opacity: 100%;
 }
 
 .match-container .match-ribbon {
     z-index: 2;
-    width: 3%;
+    width: 7px;
     height: 100%;
-    background-color: rgb(93, 156, 235);
     border-top-left-radius: 7px;
     border-bottom-left-radius: 7px;
 }
 .match-container .match-left {
     display: grid;
-    background-color: blue;
+    background-color: transparent;
     width: 25%;
     justify-content: center;
     align-items: center;
@@ -203,7 +233,7 @@ button {
     column-gap: 30px;
     justify-content: center;
     align-items: center;
-    background-color: purple;
+    background-color: transparent;
     width: 55%;
     height: 100%;
 }
@@ -214,7 +244,7 @@ button {
 
 .match-container .match-right {
     display: grid;
-    background-color: orange;
+    background-color: transparent;
     width: 20%;
     justify-content: center;
     align-items: center;
@@ -666,9 +696,8 @@ button {
 }
 
 .loading {
-    display: grid; 
-    justify-content: center; 
-    align-items: center; 
+    display: grid;
+    justify-content: center;
+    align-items: center;
     align-content: center;
 }
-
