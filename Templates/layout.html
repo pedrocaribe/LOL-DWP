@@ -12,14 +12,19 @@
 </head>
 
 <body>
-    <header>
-    <img src="./static/logo.png" alt="Logo" class="logo">
-    <h1>Have I Ever Played With</h1>
-    </header>
-    <main>
-    {% block main %} {% endblock %}
-    
-    <section id="result"></section>
-    </main>
+    <div class="root">
+        <header>
+        <img src="./static/logo.png" alt="Logo" class="logo">
+        <h1>Have I Ever Played With</h1>
+        </header>
+        <main>
+            <div class="left-ad-box"></div>
+            <div class="main">
+            {% block main %} {% endblock %}
+            </div>
+            <div class="right-ad-box"></div>
+        <section id="result"></section>
+        </main>
+    </div>
 </body>
 </html>

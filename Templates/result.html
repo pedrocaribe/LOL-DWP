@@ -9,15 +9,15 @@
     <div class="outter-div">
         <div class="outter-div-left" style="background-color: transparent"></div>
         <div class="outter-div-center">
-            <div class="match-container">
-                <div class="match-ribbon"></div>
+            <div class="match-container {% if item['p1_win_lose'] == 'Win' %}win{% else %}lose{% endif %}">
+                <div class="match-ribbon {% if item['p1_win_lose'] == 'Win' %}win{% else %}lose{% endif %}"></div>
                 <div class="match-left">
-                <div style="height: 0px;">{{ item['match_type'] }}</div>
-                <div style="flex-wrap: wrap; height: 0px;">{{ item['match_date'] }}</div>  
-                <div style="display: flex; justify-content: space-between;">
-                    <div style="height: 12px;">{{ item['p1_win_lose'] }}</div>
-                    <div style="height: 12px;">{{ item['match_duration'] }}</div>
-                </div>  
+                    <div class="{% if item['p1_win_lose'] == 'Win' %}text-win{% else %}text-lose{% endif %}" style="height: 0px;">{{ item['match_type'] }}</div>
+                    <div style="flex-wrap: wrap; height: 0px;">{{ item['match_date'] }}</div>  
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="{% if item['p1_win_lose'] == 'Win' %}text-win{% else %}text-lose{% endif %}" style="height: 12px;">{{ item['p1_win_lose'] }}</div>
+                        <div style="height: 12px;">{{ item['match_duration'] }}</div>
+                    </div>  
                 </div>
                 <div class="match-center">
                     <div class="player1">
@@ -61,7 +61,9 @@
                         </div>
                     </div>
                 </div>
-            <div class="match-right">AI SCORE</div>
+                <div class="match-right">
+                    AI SCORE
+                </div>
             </div>
             <div class="container">
             <div>
