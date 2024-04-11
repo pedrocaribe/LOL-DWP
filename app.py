@@ -25,14 +25,12 @@ async def index():
 
 @app.route("/loading", methods=['GET', 'POST'])
 async def loading():
-    print("in loading")
     game_name_1 = request.form.get("game_name_1")
     tag_line_1 = request.form.get("tag_line_1")
     game_name_2 = request.form.get("game_name_2")
     tag_line_2 = request.form.get("tag_line_2")
     region = request.form.get("region")
 
-    print("out of loading")
     return render_template("loading.html", game_name_1=game_name_1, tag_line_1=tag_line_1, game_name_2=game_name_2, tag_line_2=tag_line_2, region=region)
 
 
@@ -40,11 +38,8 @@ async def loading():
 async def search():
     """Perform Search within RIOT API"""
 
-    game_name_1 = request.args.get("game_name_1")
-    tag_line_1 = request.args.get("tag_line_1")
-    game_name_2 = request.args.get("game_name_2")
-    tag_line_2 = request.args.get("tag_line_2")
-    region = request.args.get("region")
+    query_string = request.args.get("sr")
+    game_name_1, tag_line_1, game_name_2, tag_line_2, region = query_string.split("-")
 
     """https://leagueoflegends.fandom.com/wiki/Servers"""
     
