@@ -13,18 +13,30 @@
 
 <body>
     <div class="root">
-        <header>
-        <img src="./static/logo.png" alt="Logo" class="logo">
-        <h1>Have I Ever Played With</h1>
-        </header>
-        <main>
-            <div class="left-ad-box"></div>
-            <div class="main">
-            {% block main %} {% endblock %}
+        <div class="layout-design">
+            <div class="superior-header">
+                <div class="sup">
+                    <div class="sup-logo">
+                        <img src="./static/logo.png" width="125" height="30" class="sup-logo-img">
+                    </div>
+                    <div class="sup-mid"></div>
+                    <div class="sup-right"></div>
+                </div>
+                <div class="mid"></div>
+                <div class="inf"></div>
             </div>
-            <div class="right-ad-box"></div>
-        <section id="result"></section>
-        </main>
+            <main>
+                <div class="left-ad-box"></div>
+                <div class="home">
+                    {% block main %} {% endblock %}
+                </div>
+                <div class="right-ad-box"></div>
+            <section id="result"></section>
+            </main>
+            <footer>
+
+            </footer>
+        </div>
     </div>
 </body>
 </html>

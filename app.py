@@ -16,7 +16,6 @@ app = flask.Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
-
 @app.route("/", methods=['GET', 'POST'])
 async def index():
     """Show index page"""

@@ -2,80 +2,136 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    HIEPW v1.0
+    DWP v1.0
 {% endblock %}
 
 {% block main %}
+<h2>
+    <img src="./static/logo.png" alt="DWP" style="vertical-align: top; width: 300px;">
+</h2>
 <form action="/loading" method="post" id="search" class="search-form">
-    <div class="player">
-        
-        <div class="gameName">
-        <input type="text" id="game_name_1" name="game_name_1" placeholder="{{ gn1 }}" minlength="3" maxlength="16" required>
-        </div>
-        #
-        <div class="tagLine">
-        <input class="tagLine" type="text" id="tag_line_1" name="tag_line_1" placeholder="{{ tg1 }}" minlength="3" maxlength="5" required>
-        </div>
+    <div class="index-container">
+        <div class="search-container">
+            <div class="dropdown">
+                <div class="region-container">
+                    <div class="region-btn">
+                        <span class="region-button-text">BR1</span>
+                        <!-- <button class="region-btn">BR1 <i class="fas fa-caret-down"></i> </button> -->
+                    </div>
+                    <div class="region" style="margin-left: 12px;">
+                        <div class="dropdown-arrow">
+                            
+                        </div>
+                        <div class="region-dropdown">
+                            <div class="dd-div-container">
+                                <div class="dd-div-region">Region</div>
+                                <div class="dd-div-grid">
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="BR1">BR1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="EUN1">EUN1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="EUW1">EUW1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="KR">KR</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="JP1">JP1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="LA1">LA1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="LA2">LA2</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="NA1">NA1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="OC1">OC1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="PH2">PH2</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="RU">RU</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="SG2">SG2</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="TH2">TH2</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="TR1">TR1</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="TW2">TW2</span>
+                                        </div>
+                                    </div>
+                                    <div class="dd-item">
+                                        <div>
+                                            <span value="VN2">VN2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="players">
+                <div class="player">
+                    <div class="player-input-data">
+                        <div class="game-name">
+                            <label for="game_name_1" class="player-label">Summoner 1 Game Name </label>
+                            <input type="text" id="game_name_1" name="game_name_1" minlength="3" maxlength="16" required>
+                        </div>
+                        <div class="tag-line">
+                            <span> # Tag</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="player">
+                    <input type="text" id="game_name_2" name="game_name_2" placeholder="{{ gn2 }}" minlength="3" maxlength="16" required>
 
-    </div>
-    <div class="player">
-        <input type="text" id="game_name_2" name="game_name_2" placeholder="{{ gn2 }}" minlength="3" maxlength="16" required>
-        # 
-        <div class="tagLine">
-        <input class="tagLine" type="text" id="tag_line_2" name="tag_line_2" placeholder="{{ tg2 }}" minlength="3" maxlength="5" required>
+                </div>
+            </div>
         </div>
-
     </div>
-    <div class="region-container">
-        <label for="region-BR1" class="region-input" >
-            <input type="radio" id="region-BR1" name="region" value="BR1" checked>BR1</button>
-        </label>
-        <label for="region-EUN1" class="region-input" >
-            <input type="radio" id="region-EUN1" name="region" value="EUN1" checked>EUN1</button>
-        </label>
-        <label for="region-EUW1" class="region-input" >
-            <input type="radio" id="region-EUW1" name="region" value="EUW1" checked>EUW1</button>
-        </label>
-        <label for="region-JP1" class="region-input" >
-            <input type="radio" id="region-JP1" name="region" value="JP1" checked>JP1</button>
-        </label>
-        <label for="region-KR" class="region-input" >
-            <input type="radio" id="region-KR" name="region" value="KR" checked>KR</button>
-        </label>
-        <label for="region-LA1" class="region-input" >
-            <input type="radio" id="region-LA1" name="region" value="LA1" checked>LA1</button>
-        </label>
-        <label for="region-LA2" class="region-input" >
-            <input type="radio" id="region-LA2" name="region" value="LA2" checked>LA2</button>
-        </label>
-        <label for="region-NA1" class="region-input" >
-            <input type="radio" id="region-NA1" name="region" value="NA1" checked>NA1</button>
-        </label>
-        <label for="region-OC1" class="region-input" >
-            <input type="radio" id="region-OC1" name="region" value="OC1" checked>OC1</button>
-        </label>
-        <label for="region-PH2" class="region-input" >
-            <input type="radio" id="region-PH2" name="region" value="PH2" checked>PH2</button>
-        </label>
-        <label for="region-RU" class="region-input" >
-            <input type="radio" id="region-RU" name="region" value="RU" checked>RU</button>
-        </label>
-        <label for="region-SG2" class="region-input" >
-            <input type="radio" id="region-SG2" name="region" value="SG2" checked>SG2</button>
-        </label>
-        <label for="region-TH2" class="region-input" >
-            <input type="radio" id="region-TH2" name="region" value="TH2" checked>TH2</button>
-        </label>
-        <label for="region-TR1" class="region-input" >
-            <input type="radio" id="region-TR1" name="region" value="TR1" checked>TR1</button>
-        </label>
-        <label for="region-TW2" class="region-input" >
-            <input type="radio" id="region-TW2" name="region" value="TW2" checked>TW2</button>
-        </label>
-        <label for="region-VN2" class="region-input" >
-            <input type="radio" id="region-VN2" name="region" value="VN2" checked>VN2</button>
-        </label>
-    </div>
+    
     <input type="hidden" id="loading" name="loading" value="True"></input>
     <div>
         <button class = "btn" type="submit" form="search">
@@ -93,4 +149,5 @@
             <div id="input_feedback_game_name_2" name="input_feedback_game_name_2">Summoner 2 Combination of Game Name and TagLine NOT Found.</div>
         {% endif %}
     </div>
+    <script src="./static/script.js" defer></script>
 {% endblock %}
