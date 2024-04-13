@@ -9,14 +9,14 @@
 <h2>
     <img src="./static/logo.png" alt="DWP" style="vertical-align: top; width: 300px;">
 </h2>
-<form action="/loading" method="post" id="search" class="search-form">
+<form action="/search" method="post" id="search" class="search-form">
     <div class="index-container">
         <div class="search-container">
             <div class="dropdown">
                 <div class="region-container">
                     <div class="region-btn">
                         <span class="region-button-text">BR1</span>
-                        <!-- <button class="region-btn">BR1 <i class="fas fa-caret-down"></i> </button> -->
+                        <input type="hidden" id="selected-region" name="selected-region" value="">
                     </div>
                     <div class="region" style="margin-left: 12px;">
                         <div class="dropdown-arrow">
@@ -117,7 +117,7 @@
                     <div class="player-input-data">
                         <div class="game-name">
                             <label for="game_name_1" class="player-label">Summoner 1 Game Name </label>
-                            <input type="text" id="game_name_1" name="game_name_1" minlength="3" maxlength="16" required>
+                            <input type="text" id="game_name_1" name="game_name_1" minlength="3" maxlength="22" pattern="^(?=[a-zA-Z0-9#\s]{3,22}$)[a-zA-Z0-9\s]{3,16}#[a-zA-Z0-9]{3,5}$" required>
                         </div>
                         <div class="tag-line">
                             <span> # Tag</span>
@@ -125,15 +125,22 @@
                     </div>
                 </div>
                 <div class="player">
-                    <input type="text" id="game_name_2" name="game_name_2" placeholder="{{ gn2 }}" minlength="3" maxlength="16" required>
-
+                    <div class="player-input-data">
+                        <div class="game-name">
+                            <label for="game_name_2" class="player-label">Summoner 2 Game Name </label>
+                            <input type="text" id="game_name_2" name="game_name_2" minlength="3" maxlength="22" pattern="^(?=[a-zA-Z0-9#\s]{3,22}$)[a-zA-Z0-9\s]{3,16}#[a-zA-Z0-9]{3,5}$" required>
+                        </div>
+                        <div class="tag-line">
+                            <span> # Tag</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
     <input type="hidden" id="loading" name="loading" value="True"></input>
-    <div>
+    <div style="display: flex; justify-content: center;">
         <button class = "btn" type="submit" form="search">
         <span class="circle">
             <i class="fa-solid fa-angle-right"></i>
