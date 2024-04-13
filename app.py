@@ -19,26 +19,20 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 @app.route("/", methods=['GET', 'POST'])
 async def index():
     """Show index page"""
-    return render_template("index.html", gn1="Summoner 1 Game Name", gn2="Summoner 2 Game Name", tg1="Tag", tg2="Tag", failed_game_name_1=False, failed_game_name_2=False)
-
-
-@app.route("/loading", methods=['GET', 'POST'])
-async def loading():
-    game_name_1 = request.form.get("game_name_1")
-    tag_line_1 = request.form.get("tag_line_1")
-    game_name_2 = request.form.get("game_name_2")
-    tag_line_2 = request.form.get("tag_line_2")
-    region = request.form.get("region")
-
-    return render_template("loading.html", game_name_1=game_name_1, tag_line_1=tag_line_1, game_name_2=game_name_2, tag_line_2=tag_line_2, region=region)
+    return render_template("index.html", failed_game_name_1=False, failed_game_name_2=False)
 
 
 @app.route("/search", methods=['GET','POST'])
 async def search():
     """Perform Search within RIOT API"""
 
-    query_string = request.args.get("sr")
-    game_name_1, tag_line_1, game_name_2, tag_line_2, region = query_string.split("-")
+    gn1 = request.form["game_name_1"]
+    gn2 = request.form["game_name_2"]
+    game_name_1, tag_line_1 = gn1.split("#")
+    game_name_2, tag_line_2 = gn2.split("#")
+    region = request.form["selected-region"]
+
+    print(game_name_1, game_name_2, tag_line_1, tag_line_2, region)
 
     """https://leagueoflegends.fandom.com/wiki/Servers"""
     
@@ -286,4 +280,5 @@ async def search():
         failed_game_name_1 = True if not req1 else False
         failed_game_name_2 = True if not req2 else False
 
-        return render_template("index.html", gn1=game_name_1, gn2=game_name_2, tg1=tag_line_1, tg2=tag_line_2, failed_game_name_1=failed_game_name_1, failed_game_name_2=failed_game_name_2, loading=False)
+        # return render_template("index.html", gn1=game_name_1, gn2=game_name_2, tg1=tag_line_1, tg2=tag_line_2, failed_game_name_1=failed_game_name_1, failed_game_name_2=failed_game_name_2, loading=False)
+        return render_template("index.html", failed_game_name_1=failed_game_name_1, failed_game_name_2=failed_game_name_2, loading=False)

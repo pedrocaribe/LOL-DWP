@@ -7,10 +7,13 @@ regionCtn.addEventListener('click', () => {
   regionDropdown.classList.toggle('show'); // Toggle visibility of dropdown
 });
 
-// Handle selecting a region from the dropdown (example)
+// Handle selecting a region from the dropdown (example) and updating div and hidden input
 regionDropdown.addEventListener('click', (event) => {
   const selectedRegion = event.target.textContent; // Get the text content of the clicked list item
+  const hiddenInput = document.getElementById('selected-region')
+
   regionBtnText.textContent = selectedRegion; // Update the button text
+  hiddenInput.value = selectedRegion
   regionDropdown.classList.remove('show'); // Hide the dropdown after selection
 });
 
