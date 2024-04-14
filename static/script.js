@@ -74,4 +74,3 @@ playerInputs.forEach(playerInput => {
       }
   });
 });
-

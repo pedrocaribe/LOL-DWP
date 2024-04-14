@@ -7,7 +7,9 @@
 
 {% block main %}
 <h2>
-    <img src="./static/logo.png" alt="DWP" style="vertical-align: top; width: 300px;">
+    <a href="/">
+        <img src="./static/logo.png" alt="DWP" style="vertical-align: top; width: 300px;">
+    </a>
 </h2>
 <form action="/search" method="post" id="search" class="search-form">
     <div class="index-container">
@@ -138,10 +140,10 @@
             </div>
         </div>
     </div>
-    
+
     <input type="hidden" id="loading" name="loading" value="True"></input>
     <div style="display: flex; justify-content: center;">
-        <button class = "btn" type="submit" form="search">
+        <button class = "btn" type="submit" form="search" id="search-button">
         <span class="circle">
             <i class="fa-solid fa-angle-right"></i>
         </span>

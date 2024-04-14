@@ -32,8 +32,6 @@ async def search():
     game_name_2, tag_line_2 = gn2.split("#")
     region = request.form["selected-region"]
 
-    print(game_name_1, game_name_2, tag_line_1, tag_line_2, region)
-
     """https://leagueoflegends.fandom.com/wiki/Servers"""
     
     regional = {

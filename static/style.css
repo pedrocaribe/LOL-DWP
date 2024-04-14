@@ -7,16 +7,19 @@ body {
     resize: none;
     display: block;
     overflow-y: scroll;
-    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        sans-serif;
     font-size: 14px;
     font-weight: 400;
     background: transparent;
     color: rgb(49, 49, 49);
+    margin: 0px;
 }
 
 input:focus {
     outline: none; /* Hides the default outline */
-} 
+}
 
 .root {
     min-width: 1300px;
@@ -58,7 +61,8 @@ input:focus {
 
 .superior-header .sup .sup-logo .sup-logo-img {
     margin-top: 6px;
-    width: 125px;
+    width: 80px;
+    height: 60px;
     vertical-align: top;
 }
 
@@ -128,12 +132,29 @@ footer {
     justify-content: center;
 }
 
+.footer-copyright {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+}
 
+.footer-copyright dl {
+    max-width: 620px;
+    margin-left: 35px;
+}
 
+.copyright-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgb(0, 0, 0);
+}
 
-
-
-
+.copyright-desc {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgb(170, 170, 170);
+    margin: 3px 0px;
+}
 
 /* INDEX */
 
@@ -183,9 +204,7 @@ footer {
     border: 0px;
     background-color: transparent;
     font-size: 14px;
-    
 }
-
 
 .player-label {
     position: absolute;
@@ -262,7 +281,7 @@ footer {
 }
 
 .region-dropdown.show {
-    display: block; 
+    display: block;
 }
 
 .dd-div-container {
@@ -307,9 +326,6 @@ footer {
     font-weight: normal;
     color: rgb(107, 120, 181);
 }
-
-
-
 
 .btn {
     all: unset;
