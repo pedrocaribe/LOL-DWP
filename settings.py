@@ -3,6 +3,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from colorama import Back, Fore,Style
 
+os.environ['DEBUG'] = '1' # Remove for Production Mode
+
 DEBUG = os.getenv('DEBUG', False)
 
 if DEBUG:
