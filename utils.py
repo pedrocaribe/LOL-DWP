@@ -68,51 +68,6 @@ async def fetch_all_matches(match_list, region):
     results = await asyncio.gather(*tasks)
 
     return return_value
-
-
-    # Processing time 0.02 sec, but returns error and coroutine
-
-    # for match in match_list:
-    #     task = asyncio.create_task(fetch_match_data(match, region))
-    #     await task
-    #     value = task.result()
-    #     return_value[match] = value
-    
-    # return return_value
-        
-
-
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     future_to_match = {executor.submit(fetch_match_data, match_id, region): match_id for match_id in match_list}
-    #     match_data = {}
-    #     for future in concurrent.futures.as_completed(future_to_match):
-    #         match_id = future_to_match[future]
-    #         try:
-    #             match_data[match_id] = future.result()
-    #         except Exception as e:
-    #             match_data[match_id] = f"Error: {e}"
-    # return match_data
-
-    # async def fetch_match_data_in_thread(match_id, region):
-    #     # Use asyncio.to_thread() to run the async function in a separate thread
-    #     data = await asyncio.to_thread(fetch_match_data, match_id, region)
-    #     return data
-    
-    # match_data = {}
-    # tasks = []
-    # for match_id in match_list:
-    #     task = asyncio.create_task(fetch_match_data_in_thread(match_id, region))
-    #     tasks.append(task)
-    
-    # for task, match_id in zip(tasks, match_list):
-    #     try:
-    #         match_data[match_id] = await task
-    #     except Exception as e:
-    #         match_data[match_id] = f"Error: {e}"
-    
-    # return match_data
-
-
     
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
