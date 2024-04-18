@@ -51,6 +51,8 @@ class Match():
         self.players = players
     
     async def process_match_data(self):
+        
+        # Match
         self.creation = self.data['info']['gameCreation'] # Transform into readable time
         self.duration = self.data['info']['gameDuration'] # Transform into readable time
         self.game_mode = self.data['info']['gameMode']
