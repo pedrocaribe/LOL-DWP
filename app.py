@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from colorama import Back, Fore,Style
 
+import json
+
 # Styling
 fy = Fore.YELLOW
 fw = Fore.WHITE
@@ -96,16 +98,17 @@ async def fetch_data():
 
             matches.sort(reverse=True, key=date_sort)
             
+            matches_data = [{key: value for key, value in match.__dict__.items() if key != 'players'} for match in matches]
 
-            print([match.id for match in matches])
-                
+            print(f'{fy + bg + sb}Preparing to send data to Website{sres}')
+            return jsonify(matches=matches_data)
                 
     else:
         failed_player1 = True if not players['player1'] else False
         print(failed_player1)
         failed_player2 = True if not players['player2'] else False
         print(failed_player2)
-    return processed_data
+    
 
 
 
