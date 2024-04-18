@@ -90,15 +90,10 @@ class Match():
 
 
 
-
-
-
-
 async def fetch_match_data(match_id, region):
     url = await get_url(riot_api="MATCH_V5", region=region)
     match_data = await fetch_riot_data(f'{url}{match_id}?api_key={RIOT_TOKEN}')
     return match_data
-
 
 
 async def fetch_all_matches(match_list, region):
