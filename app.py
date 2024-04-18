@@ -1,4 +1,17 @@
 from flask import Flask, request, jsonify, render_template
+from colorama import Back, Fore,Style
+
+# Styling
+fy = Fore.YELLOW
+fw = Fore.WHITE
+fg = Fore.GREEN
+fr = Fore.RED
+bg = Back.GREEN
+br = Back.RED
+bb = Back.BLACK
+bres = Back.RESET
+sb = Style.BRIGHT
+sres = Style.RESET_ALL
 
 from settings import *
 from utils import *
@@ -26,9 +39,7 @@ async def index():
 @app.route('/search', methods=['GET', 'POST'])
 async def search():
     data = request.form.to_dict()
-    print(data)
     return render_template('search.html', form_data=data)
-
 
 @app.route('/fetch-data', methods=['GET', 'POST'])
 async def fetch_data():
@@ -66,19 +77,29 @@ async def fetch_data():
         matches_container = list((set(players['player1'].matches).intersection(players['player2'].matches)))
         
         if matches_container:
-
             start = time.time()
-            print(start)
             match_data = await fetch_all_matches(matches_container, region=region)
             end = time.time()
-            print(end)
-            timeee = round(end-start, 4)
-            print("Time to process all matches", timeee)
+            matches_count = len(match_data)
 
-            print(match_data)
+            print(f'{fy + bg + sb}Processed {matches_count} matches in {round(end-start, 4)} seconds{sres}')
 
+            matches = []
+            for match_id, data in match_data.items():
+                match = Match(match_id, data, players)
+                await match.process_match_data()
 
-        
+                matches.append(match)
+
+            def date_sort(e):
+                return e.creation
+
+            matches.sort(reverse=True, key=date_sort)
+            
+
+            print([match.id for match in matches])
+                
+                
     else:
         failed_player1 = True if not players['player1'] else False
         print(failed_player1)
