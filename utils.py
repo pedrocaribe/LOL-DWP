@@ -52,11 +52,6 @@ class Match():
     
     async def process_match_data(self):
         
-        # Match
-        self.creation = self.data['info']['gameCreation'] # Transform into readable time
-        self.duration = self.data['info']['gameDuration'] # Transform into readable time
-        self.game_mode = self.data['info']['gameMode']
-
         # Player 1
         self.idx_p1 = self.data['metadata']['participants'].index(self.players['player1'].puuid)
         self.stats_p1 = self.data['info']['participants'][self.idx_p1]
@@ -86,6 +81,12 @@ class Match():
         self.deaths_p2 = self.stats_p2['deaths']
         self.assists_p2 = self.stats_p2['assists']
         self.kda_p2 = ((self.kills_p2 + self.assists_p2)/max(self.deaths_p2, 1))
+
+        # Match
+        self.same_team = True if self.win_lose_p1 == self.win_lose_p2 else False
+        self.creation = self.data['info']['gameCreation'] # Transform into readable time
+        self.duration = self.data['info']['gameDuration'] # Transform into readable time
+        self.game_mode = self.data['info']['gameMode']
 
 
 
