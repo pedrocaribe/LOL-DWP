@@ -67,6 +67,10 @@ class Match():
         self.items_p1 = ['{}'.format(self.stats_p1["item{}".format(i)]) for i in range(7)]
         self.team_id_p1 = self.stats_p1['teamId']
         self.win_lose_p1 = self.stats_p1['win']
+        self.kills_p1 = self.stats_p1['kills']
+        self.deaths_p1 = self.stats_p1['deaths']
+        self.assists_p1 = self.stats_p1['assists']
+        self.kda_p1 = ((self.kills_p1 + self.assists_p1)/max(self.deaths_p1, 1))
 
         # Player 2
         self.idx_p2 = self.data['metadata']['participants'].index(self.players['player2'].puuid)
@@ -78,6 +82,10 @@ class Match():
         self.items_p2 = ['{}'.format(self.stats_p2["item{}".format(i)]) for i in range(7)]
         self.team_id_p2 = self.stats_p2['teamId']
         self.win_lose_p2 = self.stats_p2['win']
+        self.kills_p2 = self.stats_p2['kills']
+        self.deaths_p2 = self.stats_p2['deaths']
+        self.assists_p2 = self.stats_p2['assists']
+        self.kda_p2 = ((self.kills_p2 + self.assists_p2)/max(self.deaths_p2, 1))
 
 
 
