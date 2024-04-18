@@ -45,8 +45,42 @@ class Player():
 
 
 class Match():
-    def __init__(self) -> None:
-        self.id = None
+    def __init__(self, id , data, players) -> None:
+        self.id = id
+        self.data = data
+        self.players = players
+    
+    async def process_match_data(self):
+        self.creation = self.data['info']['gameCreation'] # Transform into readable time
+        self.duration = self.data['info']['gameDuration'] # Transform into readable time
+        self.game_mode = self.data['info']['gameMode']
+
+        # Player 1
+        self.idx_p1 = self.data['metadata']['participants'].index(self.players['player1'].puuid)
+        self.stats_p1 = self.data['info']['participants'][self.idx_p1]
+        self.level_p1 = self.stats_p1['champLevel']
+        self.champion_id_p1 = self.stats_p1['championId']
+        self.champion_name_p1 = self.stats_p1['championName']
+        self.lane_position_p1 = self.stats_p1['lane']
+        self.items_p1 = ['{}'.format(self.stats_p1["item{}".format(i)]) for i in range(7)]
+        self.team_id_p1 = self.stats_p1['teamId']
+        self.win_lose_p1 = self.stats_p1['win']
+
+        # Player 2
+        self.idx_p2 = self.data['metadata']['participants'].index(self.players['player2'].puuid)
+        self.stats_p2 = self.data['info']['participants'][self.idx_p2]
+        self.level_p2 = self.stats_p2['champLevel']
+        self.champion_id_p2 = self.stats_p2['championId']
+        self.champion_name_p2 = self.stats_p2['championName']
+        self.lane_position_p2 = self.stats_p2['lane']
+        self.items_p2 = ['{}'.format(self.stats_p2["item{}".format(i)]) for i in range(7)]
+        self.team_id_p2 = self.stats_p2['teamId']
+        self.win_lose_p2 = self.stats_p2['win']
+
+
+
+
+
 
 
 async def fetch_match_data(match_id, region):
