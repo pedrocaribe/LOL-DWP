@@ -53,7 +53,7 @@ async def fetch_data():
     players = {}
 
     for i in range(1,3):
-        player = await create_player()
+        player = {}
 
         player["name"], player["tag"] = form_data[f'game_name_{i}'].strip().split('#')
         player["region"] = region
@@ -88,20 +88,18 @@ async def fetch_data():
 
             matches = []
             for match_id, data in match_data.items():
-                match = Match(match_id, data, players)
-                await match.process_match_data()
+                ...
+                match = await match_dict(match_id, data, players)
 
                 matches.append(match)
 
             def date_sort(e):
-                return e.creation
+                return e['creation']
 
             matches.sort(reverse=True, key=date_sort)
             
-            matches_data = [{key: value for key, value in match.__dict__.items() if key != 'players'} for match in matches]
-
             print(f'{fy + bg + sb}Preparing to send data to Website{sres}')
-            return jsonify(matches=matches_data)
+            return matches
                 
     else:
         failed_player1 = True if not players['player1'] else False
