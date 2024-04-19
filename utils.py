@@ -29,30 +29,29 @@ def duration(func):
             return tmp()
     return wrapper
 
+@duration
+def ddragon_data():
 
-class RiotData():
-    def __init__(self) -> None:
-        self.fetch_latest_data()
+    ret = {}
+    VERSION_API = "https://ddragon.leagueoflegends.com/api/versions.json"
+    latest_version = requests.get(VERSION_API).json()[0]
+    ret['version'] = latest_version
 
-    def latest_version(self):
-        VERSION_API = "https://ddragon.leagueoflegends.com/api/versions.json"
-        return requests.get(VERSION_API).json()[0]
+    # Retrieve champions from Riot API
+    CHAMPIONS_URL = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/champion.json"
+    champions = requests.get(CHAMPIONS_URL).json()["data"]
+    ret['champions'] = champions
+
+    # Retrieve spells from Riot API
+    SPELLS_URL = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/summoner.json"
+    spells = requests.get(SPELLS_URL).json()["data"]
+    ret['spells'] = spells
     
-    def fetch_latest_data(self):
-        # Retrieve current version of LOL
-        self.latest_version = self.latest_version()
+    # Generic Items URL for icon images
+    ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/img/item/"
+    ret['ITEMS_URL'] = ITEMS_URL
+    return ret
 
-        # Retrieve champions from Riot API
-        CHAMPIONS_URL = f"https://ddragon.leagueoflegends.com/cdn/{self.latest_version}/data/en_US/champion.json"
-        self.champions = requests.get(CHAMPIONS_URL).json()["data"]
-
-        # Retrieve spells from Riot API
-        SPELLS_URL = f"https://ddragon.leagueoflegends.com/cdn/{self.latest_version}/data/en_US/summoner.json"
-        self.spells = requests.get(SPELLS_URL).json()["data"]
-        
-        # Generic Items URL for icon images
-        self.ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{self.latest_version}/img/item/"
-    
 
 async def get_matches(player):
     MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
@@ -79,6 +78,8 @@ async def match_dict(id, data, players):
     ret_dict['deaths_p1'] = ret_dict['stats_p1']['deaths']
     ret_dict['assists_p1'] = ret_dict['stats_p1']['assists']
     ret_dict['kda_p1'] = ((ret_dict['kills_p1'] + ret_dict['assists_p1'])/max(ret_dict['deaths_p1'], 1))
+    ret_dict['spell_1_p1'] = ret_dict['stats_p1']['summoner1Id']
+    ret_dict['spell_2_p1'] = ret_dict['stats_p1']['summoner2Id']
 
     # Player 2
     ret_dict['puuid_p2'] = players['player2']['puuid']
@@ -97,6 +98,8 @@ async def match_dict(id, data, players):
     ret_dict['deaths_p2'] = ret_dict['stats_p2']['deaths']
     ret_dict['assists_p2'] = ret_dict['stats_p2']['assists']
     ret_dict['kda_p2'] = ((ret_dict['kills_p2'] + ret_dict['assists_p2'])/max(ret_dict['deaths_p2'], 1))
+    ret_dict['spell_1_p2'] = ret_dict['stats_p2']['summoner1Id']
+    ret_dict['spell_2_p2'] = ret_dict['stats_p2']['summoner2Id']
 
     # Match
     ret_dict['region'] = players['player1']['region']
@@ -113,6 +116,7 @@ async def fetch_match_data(match_id, region):
     return match_data
 
 
+@duration
 async def fetch_all_matches(match_list, region):
     return_value = {}
 
@@ -125,6 +129,7 @@ async def fetch_all_matches(match_list, region):
     results = await asyncio.gather(*tasks)
 
     return return_value
+
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
 
@@ -155,8 +160,8 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
         return selected_url
     else:
         raise Exception(f"Unknown Riot API {riot_api}")
-    
-@duration
+
+
 async def fetch_riot_data(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -167,3 +172,41 @@ async def fetch_riot_data(url):
             else:
                 raise Exception(f"Riot API request failed with status: {response.status}")
             
+async def get_image_path(match=None, RIOT_DATA=None):
+
+    async def get_data_id(data_type, data_id):
+        data = next((d for d in RIOT_DATA[data_type].values() if d['key'] == str(data_id)), None)
+        return data if data else None
+
+    async def get_image_list(item_numbers):
+        async def get_image_path_item(key_number):
+            return f"{RIOT_DATA['ITEMS_URL']}{key_number}.png"
+
+        return [await get_image_path_item(item_number) for item_number in item_numbers if item_number != 0]
+
+    def get_image_url(data, url_prefix):
+        return f"{url_prefix}{data['id']}.png" if data else None
+
+    champ_p1_data = await get_data_id('champions', match['champion_id_p1'])
+    champ_p2_data = await get_data_id('champions', match['champion_id_p2'])
+    spell_1_p1_data = await get_data_id('spells', match['spell_1_p1'])
+    spell_2_p1_data = await get_data_id('spells', match['spell_2_p1'])
+    spell_1_p2_data = await get_data_id('spells', match['spell_1_p2'])
+    spell_2_p2_data = await get_data_id('spells', match['spell_2_p2'])
+    image_list_p1 = await get_image_list(match['items_p1'])
+    image_list_p2 = await get_image_list(match['items_p2'])
+
+    champion_url = f"https://ddragon.leagueoflegends.com/cdn/{RIOT_DATA['version']}/img/champion/"
+    spell_url = f"http://ddragon.leagueoflegends.com/cdn/{RIOT_DATA['version']}/img/spell/"
+
+    match['champ_p1_data'] = champ_p1_data
+    match['champ_p2_data'] = champ_p2_data
+    match['champ_p1_img'] = get_image_url(champ_p1_data, champion_url)
+    match['champ_p2_img'] = get_image_url(champ_p2_data, champion_url)
+    match['spell_1_p1_img'] = get_image_url(spell_1_p1_data, spell_url)
+    match['spell_2_p1_img'] = get_image_url(spell_2_p1_data, spell_url)
+    match['spell_1_p2_img'] = get_image_url(spell_1_p2_data, spell_url)
+    match['spell_2_p2_img'] = get_image_url(spell_2_p2_data, spell_url)
+    match['items_p1_img'] = image_list_p1 if image_list_p1 else None
+    match['items_p2_img'] = image_list_p2 if image_list_p2 else None
+
