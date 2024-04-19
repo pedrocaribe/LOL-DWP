@@ -54,17 +54,13 @@ class RiotData():
         self.ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{self.latest_version}/img/item/"
     
 
-class Player():
-    def __init__(self) -> None:
-        self.name = None
-        self.tag = None
-        self.puuid = None
-        self.region = None
-        self.matches = []
-
-    async def get_matches(self):
-        MATCH_V5 = await get_url(riot_api="MATCH_V5", region=self.region)
-        self.matches = (await fetch_riot_data(f'{MATCH_V5}by-puuid/{self.puuid}/ids?start=0&count=100&api_key={RIOT_TOKEN}'))
+async def create_player():
+    created_dict = {}
+    return created_dict
+    
+async def get_matches(player):
+    MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
+    player["matches"] = (await fetch_riot_data(f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}'))
 
 
 class Match():
@@ -76,7 +72,7 @@ class Match():
     async def process_match_data(self):
         
         # Player 1
-        self.idx_p1 = self.data['metadata']['participants'].index(self.players['player1'].puuid)
+        self.idx_p1 = self.data['metadata']['participants'].index(self.players['player1']['puuid'])
         self.stats_p1 = self.data['info']['participants'][self.idx_p1]
         self.level_p1 = self.stats_p1['champLevel']
         self.champion_id_p1 = self.stats_p1['championId']
@@ -91,7 +87,7 @@ class Match():
         self.kda_p1 = ((self.kills_p1 + self.assists_p1)/max(self.deaths_p1, 1))
 
         # Player 2
-        self.idx_p2 = self.data['metadata']['participants'].index(self.players['player2'].puuid)
+        self.idx_p2 = self.data['metadata']['participants'].index(self.players['player2']['puuid'])
         self.stats_p2 = self.data['info']['participants'][self.idx_p2]
         self.level_p2 = self.stats_p2['champLevel']
         self.champion_id_p2 = self.stats_p2['championId']
