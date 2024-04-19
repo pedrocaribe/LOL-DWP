@@ -53,15 +53,15 @@ async def fetch_data():
     players = {}
 
     for i in range(1,3):
-        player = Player()
+        player = await create_player()
 
-        player.name, player.tag = form_data[f'game_name_{i}'].strip().split('#')
-        player.region = region
+        player["name"], player["tag"] = form_data[f'game_name_{i}'].strip().split('#')
+        player["region"] = region
 
-        processed_data = await fetch_riot_data(f'{ACCOUNT_V1}{player.name}/{player.tag}?api_key={RIOT_TOKEN}')
+        processed_data = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
 
         if processed_data:
-            player.puuid = processed_data['puuid']
+            player["puuid"] = processed_data['puuid']
         else:
             player = None
         
@@ -73,10 +73,10 @@ async def fetch_data():
         if current_version != RIOT_DATA.latest_version:
             RIOT_DATA.fetch_latest_data()
         
-        for puuid, player in players.items():
-            await player.get_matches()
+        for id_key, player in players.items():
+            await get_matches(player)
 
-        matches_container = list((set(players['player1'].matches).intersection(players['player2'].matches)))
+        matches_container = list((set(players['player1']["matches"]).intersection(players['player2']["matches"])))
         
         if matches_container:
             start = time.time()
