@@ -54,59 +54,57 @@ class RiotData():
         self.ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{self.latest_version}/img/item/"
     
 
-async def create_player():
-    created_dict = {}
-    return created_dict
-    
 async def get_matches(player):
     MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
     player["matches"] = (await fetch_riot_data(f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}'))
 
 
-class Match():
-    def __init__(self, id , data, players) -> None:
-        self.id = id
-        self.data = data
-        self.players = players
-    
-    async def process_match_data(self):
-        
-        # Player 1
-        self.idx_p1 = self.data['metadata']['participants'].index(self.players['player1']['puuid'])
-        self.stats_p1 = self.data['info']['participants'][self.idx_p1]
-        self.level_p1 = self.stats_p1['champLevel']
-        self.champion_id_p1 = self.stats_p1['championId']
-        self.champion_name_p1 = self.stats_p1['championName']
-        self.lane_position_p1 = self.stats_p1['lane']
-        self.items_p1 = ['{}'.format(self.stats_p1["item{}".format(i)]) for i in range(7)]
-        self.team_id_p1 = self.stats_p1['teamId']
-        self.win_lose_p1 = self.stats_p1['win']
-        self.kills_p1 = self.stats_p1['kills']
-        self.deaths_p1 = self.stats_p1['deaths']
-        self.assists_p1 = self.stats_p1['assists']
-        self.kda_p1 = ((self.kills_p1 + self.assists_p1)/max(self.deaths_p1, 1))
+async def match_dict(id, data, players):
+    ret_dict = {}
 
-        # Player 2
-        self.idx_p2 = self.data['metadata']['participants'].index(self.players['player2']['puuid'])
-        self.stats_p2 = self.data['info']['participants'][self.idx_p2]
-        self.level_p2 = self.stats_p2['champLevel']
-        self.champion_id_p2 = self.stats_p2['championId']
-        self.champion_name_p2 = self.stats_p2['championName']
-        self.lane_position_p2 = self.stats_p2['lane']
-        self.items_p2 = ['{}'.format(self.stats_p2["item{}".format(i)]) for i in range(7)]
-        self.team_id_p2 = self.stats_p2['teamId']
-        self.win_lose_p2 = self.stats_p2['win']
-        self.kills_p2 = self.stats_p2['kills']
-        self.deaths_p2 = self.stats_p2['deaths']
-        self.assists_p2 = self.stats_p2['assists']
-        self.kda_p2 = ((self.kills_p2 + self.assists_p2)/max(self.deaths_p2, 1))
+    # Player 1
+    ret_dict['puuid_p1'] = players['player1']['puuid']
+    ret_dict['summ_name_p1'] = players['player1']['name']
+    ret_dict['tag_line_p1'] = players['player1']['tag']
+    ret_dict['idx_p1'] = data['metadata']['participants'].index(players['player1']['puuid'])
+    ret_dict['stats_p1'] = data['info']['participants'][ret_dict['idx_p1']]
+    ret_dict['level_p1'] = ret_dict['stats_p1']['champLevel']
+    ret_dict['champion_id_p1'] = ret_dict['stats_p1']['championId']
+    ret_dict['champion_name_p1'] = ret_dict['stats_p1']['championName']
+    ret_dict['lane_position_p1'] = ret_dict['stats_p1']['lane']
+    ret_dict['items_p1'] = ['{}'.format(ret_dict['stats_p1']["item{}".format(i)]) for i in range(7)]
+    ret_dict['team_id_p1'] = ret_dict['stats_p1']['teamId']
+    ret_dict['win_lose_p1'] = ret_dict['stats_p1']['win']
+    ret_dict['kills_p1'] = ret_dict['stats_p1']['kills']
+    ret_dict['deaths_p1'] = ret_dict['stats_p1']['deaths']
+    ret_dict['assists_p1'] = ret_dict['stats_p1']['assists']
+    ret_dict['kda_p1'] = ((ret_dict['kills_p1'] + ret_dict['assists_p1'])/max(ret_dict['deaths_p1'], 1))
 
-        # Match
-        self.same_team = True if self.win_lose_p1 == self.win_lose_p2 else False
-        self.creation = self.data['info']['gameCreation'] # Transform into readable time
-        self.duration = self.data['info']['gameDuration'] # Transform into readable time
-        self.game_mode = self.data['info']['gameMode']
+    # Player 2
+    ret_dict['puuid_p2'] = players['player2']['puuid']
+    ret_dict['summ_name_p2'] = players['player2']['name']
+    ret_dict['tag_line_p2'] = players['player2']['tag']
+    ret_dict['idx_p2'] = data['metadata']['participants'].index(players['player2']['puuid'])
+    ret_dict['stats_p2'] = data['info']['participants'][ret_dict['idx_p2']]
+    ret_dict['level_p2'] = ret_dict['stats_p2']['champLevel']
+    ret_dict['champion_id_p2'] = ret_dict['stats_p2']['championId']
+    ret_dict['champion_name_p2'] = ret_dict['stats_p2']['championName']
+    ret_dict['lane_position_p2'] = ret_dict['stats_p2']['lane']
+    ret_dict['items_p2'] = ['{}'.format(ret_dict['stats_p2']["item{}".format(i)]) for i in range(7)]
+    ret_dict['team_id_p2'] = ret_dict['stats_p2']['teamId']
+    ret_dict['win_lose_p2'] = ret_dict['stats_p2']['win']
+    ret_dict['kills_p2'] = ret_dict['stats_p2']['kills']
+    ret_dict['deaths_p2'] = ret_dict['stats_p2']['deaths']
+    ret_dict['assists_p2'] = ret_dict['stats_p2']['assists']
+    ret_dict['kda_p2'] = ((ret_dict['kills_p2'] + ret_dict['assists_p2'])/max(ret_dict['deaths_p2'], 1))
 
+    # Match
+    ret_dict['region'] = players['player1']['region']
+    ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
+    ret_dict['creation'] = data['info']['gameCreation'] # Transform into readable time
+    ret_dict['duration'] = data['info']['gameDuration'] # Transform into readable time
+    ret_dict['game_mode'] = data['info']['gameMode']
+    return ret_dict
 
 
 async def fetch_match_data(match_id, region):
