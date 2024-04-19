@@ -6,6 +6,29 @@ import functools
 from settings import *
 
 
+from contextlib import contextmanager
+
+
+def duration(func):
+    @contextmanager
+    def wrapping_logic():
+        start_ts = time.time()
+        yield
+        dur = time.time() - start_ts
+        print('Function {} took {:.2} seconds to execute'.format(func.__name__, dur))
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not asyncio.iscoroutinefunction(func):
+            with wrapping_logic():
+                return func(*args, **kwargs)
+        else:
+            async def tmp():
+                with wrapping_logic():
+                    return (await func(*args, **kwargs))
+            return tmp()
+    return wrapper
+
 
 class RiotData():
     def __init__(self) -> None:
@@ -108,7 +131,6 @@ async def fetch_all_matches(match_list, region):
     results = await asyncio.gather(*tasks)
 
     return return_value
-    
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
 
@@ -140,7 +162,7 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
     else:
         raise Exception(f"Unknown Riot API {riot_api}")
     
-
+@duration
 async def fetch_riot_data(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
