@@ -22,7 +22,7 @@ app = Flask(__name__, static_folder='static', template_folder='Templates')
 
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-RIOT_DATA = RiotData()
+RIOT_DATA = ddragon_data()
 
 """Documentation consulted
 
@@ -44,7 +44,7 @@ async def search():
     return render_template('search.html', form_data=data)
 
 @app.route('/fetch-data', methods=['GET', 'POST'])
-async def fetch_data():
+async def fetch_data(RIOT_DATA=RIOT_DATA):
     form_data = request.get_json()
     region = form_data['selected-region']
 
@@ -58,10 +58,10 @@ async def fetch_data():
         player["name"], player["tag"] = form_data[f'game_name_{i}'].strip().split('#')
         player["region"] = region
 
-        processed_data = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
+        player_data = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
 
-        if processed_data:
-            player["puuid"] = processed_data['puuid']
+        if player_data:
+            player["puuid"] = player_data['puuid']
         else:
             player = None
         
@@ -70,34 +70,35 @@ async def fetch_data():
     if players['player1'] and players['player2']:
         current_version = (await fetch_riot_data(await get_url(riot_api="VERSION_API")))[0]
 
-        if current_version != RIOT_DATA.latest_version:
-            RIOT_DATA.fetch_latest_data()
+        if current_version != RIOT_DATA["version"]:
+            RIOT_DATA = ddragon_data()
         
         for id_key, player in players.items():
             await get_matches(player)
 
-        matches_container = list((set(players['player1']["matches"]).intersection(players['player2']["matches"])))
+        played_with = list((set(players['player1']["matches"]).intersection(players['player2']["matches"])))
         
-        if matches_container:
-            start = time.time()
-            match_data = await fetch_all_matches(matches_container, region=region)
-            end = time.time()
+        if played_with:
+            
+            match_data = await fetch_all_matches(played_with, region=region)
+            
             matches_count = len(match_data)
 
-            print(f'{fy + bg + sb}Processed {matches_count} matches in {round(end-start, 4)} seconds{sres}')
+            print(f'{fy + bg + sb}Processed {matches_count} matches{sres}')
 
             matches = []
             for match_id, data in match_data.items():
-                ...
                 match = await match_dict(match_id, data, players)
+                await get_image_path(match=match, RIOT_DATA=RIOT_DATA)
 
+ 
                 matches.append(match)
 
             def date_sort(e):
                 return e['creation']
 
             matches.sort(reverse=True, key=date_sort)
-            
+
             print(f'{fy + bg + sb}Preparing to send data to Website{sres}')
             return matches
                 
