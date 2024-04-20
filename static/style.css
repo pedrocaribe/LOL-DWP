@@ -518,18 +518,26 @@ footer {
 /* RESULT/SEARCH */
 
 
+.result-header {
+    width: 100%
+}
 
 .outter-div {
+    flex: 1 1 0%;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
     display: flex;
     justify-content: center;
     background-color: transparent;
     height: 102px;
+    width: 100%;
 }
 .outter-div-left {
     width: 25%;
 }
 .outter-div-center {
-    width: 50%;
+    width: 100%;
     margin-bottom: 7px;
 }
 .outter-div-right {
@@ -575,10 +583,10 @@ footer {
     border-bottom-left-radius: 7px;
 }
 .match-container .match-left {
-    display: grid;
+    display: flex;
     background-color: blue;
     background-color: transparent;
-    width: 25%;
+    width: 185px;
     justify-content: center;
     align-items: center;
     height: 100%;
@@ -590,7 +598,7 @@ footer {
     align-items: center;
     background-color: purple;
     background-color: transparent;
-    width: 55%;
+    width: 100%;
     height: 100%;
 }
 .player1 {
@@ -601,7 +609,7 @@ footer {
     display: grid;
     background-color: orange;
     background-color: transparent;
-    width: 20%;
+    width: 20px;
     justify-content: center;
     align-items: center;
     height: 100%;
