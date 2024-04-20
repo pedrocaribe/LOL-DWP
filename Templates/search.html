@@ -1,82 +1,14 @@
 {% extends "layout.html" %} 
-{% block title %} HIEPW v1.0 - Result {% endblock %}
+{% block title %} DWP v1.1 - Search Result {% endblock %}
 {% block main %}
 
 
 <div class="result_header" id="result_header" style="display: none;">
-    <h1>{{ h }}</h1>
-    
-    {% for item in matches %}
+    <h1 id="feedback"></h1>
 
-    <div class="outter-div">
-        <div class="outter-div-left" style="background-color: transparent"></div>
-        <div class="outter-div-center">
-            <div class="match-container {% if item['win_lose_p1'] == True %}win{% else %}lose{% endif %}">
-                <div class="match-ribbon {% if item['win_lose_p1'] == True %}win{% else %}lose{% endif %}"></div>
-                <div class="match-left">
-                    <div class="{% if item['win_lose_p1'] == True %}text-win{% else %}text-lose{% endif %}" style="height: 0px;">{{ item['match_type'] }}</div>
-                    <div style="flex-wrap: wrap; height: 0px;">{{ item['match_date'] }}</div>  
-                    <div style="display: flex; justify-content: space-between;">
-                        <div class="{% if item['win_lose_p1'] == True %}text-win{% else %}text-lose{% endif %}" style="height: 12px;">{{ item['p1_win_lose'] }}</div>
-                        <div style="height: 12px;">{{ item['duration'] }}</div>
-                    </div>  
-                </div>
-                <div class="match-center">
-                    <div class="player1">
-                        <div class="inner-center-row">
-                            <div class="champion-image"><img src="{{ item['champ_p1_img'] }}"></div>
-                            <div>
-                            <div class="summoners-image"><img src="{{ item['spell_1_p1_img']}}"></div>
-                            <div class="summoners-image"><img src="{{ item['spell_2_p1_img']}}"></div>
-                            </div>
-                            <div style="background-color: blue; margin: 1px">
-                            <div style="background-color: white; margin: 1px">Rune1</div>
-                            <div style="background-color: yellow; margin: 1px">Rune2</div>
-                            </div>
-                            <div style="background-color: silver; margin: 1px">KDA</div>
-                        </div>
-                        <div class="inner-center-row">
-                            
-                            {% for i in range(item['s1_items']|length) %}
-                                <div class="items"><img src="{{ item['items_p1_img'][i] }}""></div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="player2">
-                        <div class="inner-center-row">
-                            <div class="champion-image"><img src="{{ item['champ_p2_img'] }}"></div>
-                            <div>
-                            <div class="summoners-image"><img src="{{ item['spell_1_p2_img']}}"></div>
-                            <div class="summoners-image"><img src="{{ item['spell_2_p2_img']}}"></div>
-                            </div>
-                            <div style="background-color: blue; margin: 1px">
-                            <div style="background-color: white; margin: 1px">Rune1</div>
-                            <div style="background-color: yellow; margin: 1px">Rune2</div>
-                            </div>
-                            <div style="background-color: silver; margin: 1px">KDA</div>
-                        </div>
-                        <div class="inner-center-row">
-                            
-                            {% for i in range(item['s2_items']|length) %}
-                                <div class="items"><img src="{{ item['items_p2_img'][i] }}""></div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                <div class="match-right">
-                    AI SCORE
-                </div>
-            </div>
-            <div class="container">
-            <div>
-                
-            </div>
-            </div>
-            
-        </div>
-        <div class="outter-div-right" style="background-color:transparent"></div>
+    <div class="outter-outter-div" id="outter-outter-div">
+        
     </div>
-    {% endfor %}
 </div>
 <div class="loader" id="loader">
     <span class="binary"></span>
@@ -99,7 +31,83 @@
         })  // Replace with your actual Flask route
         .then(response => response.json())
         .then( data => {
-                hideLoadingIndicator()
+                hideLoadingIndicator();
+                const matchesContainer = document.querySelector('.outter-outter-div');
+
+                data.forEach(match => {
+                    const matchElement = document.createElement("div")
+                    matchElement.innerHTML = `
+                    <div class="outter-div" id="outter-div">
+    <div class="outter-div-center">
+        <div class="match-container ${match.win_lose_p1 ? 'win' : 'lose'}">
+            <div class="match-ribbon ${match.win_lose_p1 ? 'win' : 'lose'}"></div>
+            <div class="match-left">
+                <div class="${match.win_lose_p1 ? 'win' : 'lose'}" style="height: 0px">${match.game_mode}</div>
+                <div style="flex-wrap: wrap; height: 0px">${match.creation}</div>
+                <div style="display: flex; justify-content: space-between">
+                    <div class="${match.win_lose_p1 ? 'text-win' : 'text-lose'}" style="height: 12px">${match.win_lose_p1}</div>
+                    <div style="height: 12px">${match.duration}</div>
+                </div>
+            </div>
+            <div class="match-center">
+                <div class="player1">
+                    <div class="inner-center-row">
+                        <div class="champion-image"><img src="${match.champ_p1_img}" /></div>
+                        <div>
+                            <div class="summoners-image"><img src="${match['spell_1_p1_img']}"></div>
+                            <div class="summoners-image"><img src="${match['spell_2_p1_img']}"></div>
+                        </div>
+                        <div style="background-color: blue; margin: 1px">
+                            <div style="background-color: white; margin: 1px">Rune1</div>
+                            <div style="background-color: yellow; margin: 1px;">Rune2</div>
+                        </div>
+                        <div style="background-color: silver; margin: 1px">KDA</div>
+                    </div>
+                    <div class="inner-center-row">
+                        ${match.items_p1_img.map(item => `
+                        <div class="items">
+                            <img src="${item}" alt="item image" />
+                        </div>
+                        `)}
+                    </div>
+                </div>
+                <div class="player2">
+                    <div class="inner-center-row">
+                        <div class="champion-image"><img src="${match.champ_p2_img}"></div>
+                        <div>
+                            <div class="summoners-image"><img src="${match['spell_1_p2_img']}"></div>
+                            <div class="summoners-image"><img src="${match['spell_2_p2_img']}"></div>
+                        </div>
+                        <div style="background-color: blue; margin: 1px">
+                            <div style="background-color: white; margin: 1px">Rune1</div>
+                            <div style="background-color: yellow; margin: 1px;">Rune2</div>
+                        </div>
+                        <div style="background-color: silver; margin: 1px">KDA</div>
+                    </div>
+                    <div class="inner-center-row">
+                        ${match.items_p2_img.map(item => `
+                        <div class="items">
+                            <img src="${item}" alt="item image" />
+                        </div>
+                        `)}
+                    </div>
+                </div>
+            </div>
+            <div class="match-right">></div>
+        </div>
+            
+        <div class="container">
+            <div>
+
+            </div>
+        </div>
+    </div>
+            
+</div>
+                `;
+                matchesContainer.appendChild(matchElement);
+                })
+                
                 }
             )
         ;}
