@@ -7,7 +7,7 @@ from settings import *
 
 
 from contextlib import contextmanager
-
+from datetime import datetime
 
 def duration(func):
     @contextmanager
@@ -102,10 +102,11 @@ async def match_dict(id, data, players):
     ret_dict['spell_2_p2'] = ret_dict['stats_p2']['summoner2Id']
 
     # Match
+    ret_dict['match_id'] = id
     ret_dict['region'] = players['player1']['region']
     ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
-    ret_dict['creation'] = data['info']['gameCreation'] # Transform into readable time
-    ret_dict['duration'] = data['info']['gameDuration'] # Transform into readable time
+    ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
+    ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60}"
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
 
