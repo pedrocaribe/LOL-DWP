@@ -106,7 +106,7 @@ async def match_dict(id, data, players):
     ret_dict['region'] = players['player1']['region']
     ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
     ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
-    ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60}"
+    ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60:02}" # use zfill to fill with 0
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
 
