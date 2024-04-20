@@ -183,7 +183,7 @@ async def get_image_path(match=None, RIOT_DATA=None):
         async def get_image_path_item(key_number):
             return f"{RIOT_DATA['ITEMS_URL']}{key_number}.png"
 
-        return [await get_image_path_item(item_number) for item_number in item_numbers if item_number != 0]
+        return [await get_image_path_item(item_number) for item_number in item_numbers if item_number != str(0)]
 
     def get_image_url(data, url_prefix):
         return f"{url_prefix}{data['id']}.png" if data else None
