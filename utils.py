@@ -1,4 +1,4 @@
-import aiohttp, asyncio, time
+import aiohttp, asyncio, time, datetime
 import requests
 import concurrent.futures
 import functools
@@ -105,7 +105,8 @@ async def match_dict(id, data, players):
     ret_dict['match_id'] = id
     ret_dict['region'] = players['player1']['region']
     ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
-    ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
+    # ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
+    ret_dict['creation'] = await time_ago(data['info']['gameCreation'])
     ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60:02}" # use zfill to fill with 0
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
@@ -211,3 +212,30 @@ async def get_image_path(match=None, RIOT_DATA=None):
     match['items_p1_img'] = image_list_p1 if image_list_p1 else None
     match['items_p2_img'] = image_list_p2 if image_list_p2 else None
 
+async def time_ago(match_time):
+    """Calculates the time difference from the match event time in Unix time.
+    
+    Args:
+        match_time = The Unix time for specific match.
+    
+    Returns:
+        A string representing the time difference in the format of "x days ago", "x hours ago", or "x minutes ago".
+    """
+    
+    now = time.time()
+    difference = now - match_time
+
+    days = difference // (24 * 3600)
+    difference %= (24 * 3600)
+    hours = difference // 3600
+    difference %= 3600
+    minutes = difference // 60
+
+    if days > 0:
+        return f"{int(days)} days ago"
+    elif hours > 0:
+        return f"{int(hours)} hours ago"
+    elif minutes > 0:
+        return f"{int(minutes)} minutes ago"
+    else:
+        return "Just Now"
