@@ -77,7 +77,7 @@ async def match_dict(id, data, players):
     ret_dict['kills_p1'] = ret_dict['stats_p1']['kills']
     ret_dict['deaths_p1'] = ret_dict['stats_p1']['deaths']
     ret_dict['assists_p1'] = ret_dict['stats_p1']['assists']
-    ret_dict['kda_p1'] = ((ret_dict['kills_p1'] + ret_dict['assists_p1'])/max(ret_dict['deaths_p1'], 1))
+    ret_dict['kda_p1'] = round(((ret_dict['kills_p1'] + ret_dict['assists_p1'])/max(ret_dict['deaths_p1'], 1)), 2)
     ret_dict['spell_1_p1'] = ret_dict['stats_p1']['summoner1Id']
     ret_dict['spell_2_p1'] = ret_dict['stats_p1']['summoner2Id']
 
@@ -97,7 +97,7 @@ async def match_dict(id, data, players):
     ret_dict['kills_p2'] = ret_dict['stats_p2']['kills']
     ret_dict['deaths_p2'] = ret_dict['stats_p2']['deaths']
     ret_dict['assists_p2'] = ret_dict['stats_p2']['assists']
-    ret_dict['kda_p2'] = ((ret_dict['kills_p2'] + ret_dict['assists_p2'])/max(ret_dict['deaths_p2'], 1))
+    ret_dict['kda_p2'] = round(((ret_dict['kills_p2'] + ret_dict['assists_p2'])/max(ret_dict['deaths_p2'], 1)), 2)
     ret_dict['spell_1_p2'] = ret_dict['stats_p2']['summoner1Id']
     ret_dict['spell_2_p2'] = ret_dict['stats_p2']['summoner2Id']
 
@@ -221,7 +221,7 @@ async def time_ago(match_time):
     Returns:
         A string representing the time difference in the format of "x days ago", "x hours ago", or "x minutes ago".
     """
-    
+
     match_time = match_time / 1000
     now = time.time()
     difference = now - match_time
