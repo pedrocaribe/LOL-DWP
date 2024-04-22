@@ -107,6 +107,7 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
         print(failed_player1)
         failed_player2 = True if not players['player2'] else False
         print(failed_player2)
+        print("NOT FOUND ANY MATCHES")
     
 
 
