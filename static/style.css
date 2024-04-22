@@ -551,7 +551,7 @@ footer {
 
 .outter-div {
     border: 1px solid rgb(193, 209, 225);
-    margin-bottom: 3px;
+    margin-bottom: 5px;
 }
 
 .outter-div .row {
@@ -622,7 +622,7 @@ div.flex-column0.win {
     align-items: center;
     height: auto;
     margin: 0px;
-    padding: 0px 0px 0px 8px;
+    padding: 0px 0px 0px 17px;
     background-color: transparent;
     border: 0px;
     border-radius: 0px;
@@ -632,7 +632,7 @@ div.flex-column0.win {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    margin-top: -20px;
+    margin-top: -10px;
 }
 
 .match-win-lose-duration dt {
@@ -975,7 +975,7 @@ div.flex-column0.win {
     position: absolute;
     bottom: 7px;
     left: 10px;
-    margin-left: -7px;
+    margin-left: -4px;
     width: 14px;
     opacity: 0.4;
 }
