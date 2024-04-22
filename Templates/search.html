@@ -5,10 +5,8 @@
 
 <div class="result_header" id="result_header" style="display: none;">
     <h1 id="feedback"></h1>
-
-    <div class="outter-outter-div" id="outter-outter-div">
-        
-    </div>
+    <div class="win-rate" id="win-rate"></div>
+    <div class="outter-outter-div" id="outter-outter-div"></div>
 </div>
 <div class="loader" id="loader">
     <span class="binary"></span>
@@ -36,8 +34,11 @@
             return response.json()})
         .then( data => {
                 hideLoadingIndicator();
+                const winRateContainer = document.querySelector('.win-rate');
                 const matchesContainer = document.querySelector('.outter-outter-div');
 
+
+                
                 data.forEach(match => {
 
                     const matchElement = document.createElement("div")
