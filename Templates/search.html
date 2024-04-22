@@ -29,7 +29,11 @@
             }, 
             body: JSON.stringify(form_data)
         })  // Replace with your actual Flask route
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No Data Fetched');
+            }
+            return response.json()})
         .then( data => {
                 hideLoadingIndicator();
                 const matchesContainer = document.querySelector('.outter-outter-div');
@@ -86,13 +90,45 @@
 
                                             </div>    
                                         </dt>
+                                        <dd>
+                                            <div class="summ-spell">
+                                                <div class="summ-spell-img-container">
+                                                    <img src=${match.spell_1_p1_img}>
+                                                </div>
+                                            </div>
+                                            <div class="summ-spell" style="margin-top: 4px;">
+                                                <div class="summ-spell-img-container">
+                                                    <img src=${match.spell_2_p1_img}>
+                                                </div>
+                                            </div>
+                                        </dd>
+                                        <dd>
+
+                                        </dd>
                                     </dl>
                                     <div class="kda">
+                                        <p class="kda-p">
+                                            <span>${match.kills_p1}</span>
+                                            <span class="slash">/</span>
+                                            <span class="span-deaths">${match.deaths_p1}</span>
+                                            <span class="slash">/</span>
+                                            <span>${match.assists_p1}</span>
+                                        </p>
+                                        <p class="kda-ratio-p">
+                                            <span>${match.kda_p1}</span>
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="items">
-                                    <div class="items-container">
-
+                                <div class="items-ward">
+                                    <div class="items-ward-container">
+                                        <div class="items-ward-inner">${match.items_p1_img.map(item => `
+                                                <div class="items">
+                                                    <div class="items-inner">
+                                                        <img src="${item}" alt="item image" />
+                                                    </div>
+                                                </div>
+                                                `)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -120,13 +156,45 @@
 
                                             </div>    
                                         </dt>
+                                        <dd>
+                                            <div class="summ-spell">
+                                                <div class="summ-spell-img-container">
+                                                    <img src=${match.spell_1_p2_img}>
+                                                </div>
+                                            </div>
+                                            <div class="summ-spell" style="margin-top: 4px;">
+                                                <div class="summ-spell-img-container">
+                                                    <img src=${match.spell_2_p2_img}>
+                                                </div>
+                                            </div>
+                                        </dd>
+                                        <dd>
+
+                                        </dd>
                                     </dl>
                                     <div class="kda">
+                                        <p class="kda-p">
+                                            <span>${match.kills_p2}</span>
+                                            <span class="slash">/</span>
+                                            <span class="span-deaths">${match.deaths_p2}</span>
+                                            <span class="slash">/</span>
+                                            <span>${match.assists_p2}</span>
+                                        </p>
+                                        <p class="kda-ratio-p">
+                                            <span>${match.kda_p2}</span>
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="items">
-                                    <div class="items-container">
-                                            
+                                <div class="items-ward">
+                                    <div class="items-ward-container">
+                                        <div class="items-ward-inner">${match.items_p2_img.map(item => `
+                                                <div class="items">
+                                                    <div class="items-inner">
+                                                        <img src="${item}" alt="item image" />
+                                                    </div>
+                                                </div>
+                                                `)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
