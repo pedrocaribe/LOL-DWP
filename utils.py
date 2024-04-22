@@ -80,6 +80,8 @@ async def match_dict(id, data, players):
     ret_dict['kda_p1'] = f"{round(((ret_dict['kills_p1'] + ret_dict['assists_p1'])/max(ret_dict['deaths_p1'], 1)), 2):.2f}"
     ret_dict['spell_1_p1'] = ret_dict['stats_p1']['summoner1Id']
     ret_dict['spell_2_p1'] = ret_dict['stats_p1']['summoner2Id']
+    ret_dict['rune_1_p1'] = ret_dict['stats_p1']['perks']['styles'][0]['selections'][0]['perk']
+    ret_dict['rune_2_p1'] = ret_dict['stats_p1']['perks']['styles'][1]['selections'][0]['perk']
 
     # Player 2
     ret_dict['puuid_p2'] = players['player2']['puuid']
@@ -100,6 +102,8 @@ async def match_dict(id, data, players):
     ret_dict['kda_p2'] = f"{round(((ret_dict['kills_p2'] + ret_dict['assists_p2'])/max(ret_dict['deaths_p2'], 1)), 2):.2f}"
     ret_dict['spell_1_p2'] = ret_dict['stats_p2']['summoner1Id']
     ret_dict['spell_2_p2'] = ret_dict['stats_p2']['summoner2Id']
+    ret_dict['rune_1_p2'] = ret_dict['stats_p2']['perks']['styles'][0]['selections'][0]['perk']
+    ret_dict['rune_2_p2'] = ret_dict['stats_p2']['perks']['styles'][1]['selections'][0]['perk']
 
     # Match
     ret_dict['match_id'] = id
