@@ -28,8 +28,15 @@ RIOT_DATA = ddragon_data()
 
 - Difference between HTTPX, requests and AIOHTTP
 https://oxylabs.io/blog/httpx-vs-requests-vs-aiohttp
+
 - AIOHTTP Documentation
 https://docs.aiohttp.org/en/stable/
+
+- Riot Data Dragon Docs
+https://developer.riotgames.com/docs/lol#data-dragon
+
+- Riot API Docs
+https://developer.riotgames.com/docs/lol
 
 
 """
@@ -58,10 +65,10 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
         player["name"], player["tag"] = form_data[f'game_name_{i}'].strip().split('#')
         player["region"] = region
 
-        player_data = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
+        player_account = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
 
-        if player_data:
-            player["puuid"] = player_data['puuid']
+        if player_account:
+            player["puuid"] = player_account['puuid']
         else:
             player = None
         
@@ -69,6 +76,13 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
 
     if players['player1'] and players['player2']:
         current_version = (await fetch_riot_data(await get_url(riot_api="VERSION_API")))[0]
+
+        player_1_summoner = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{players['player1']['puuid']}?api_key={RIOT_TOKEN}"))
+        player_1_rank = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player_1_summoner['id']}?api_key={RIOT_TOKEN}"))
+        player_2_summoner = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{players['player2']['puuid']}?api_key={RIOT_TOKEN}"))
+        player_2_rank = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player_2_summoner['id']}?api_key={RIOT_TOKEN}"))
+
+        print(player_1_rank, player_2_rank)
 
         if current_version != RIOT_DATA["version"]:
             RIOT_DATA = ddragon_data()
