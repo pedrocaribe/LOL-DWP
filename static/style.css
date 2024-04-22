@@ -967,6 +967,7 @@ div.flex-column0.win {
     width: 100%;
     height: 100%;
     background: transparent;
+    border: none;
 }
 
 .flex-column7 button img {
@@ -977,3 +978,4 @@ div.flex-column0.win {
     width: 14px;
     opacity: 0.4;
 }
+
