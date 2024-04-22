@@ -788,6 +788,35 @@ div.flex-column0.win {
     vertical-align: top;
 }
 
+.rune-img-1-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    -webkit-box-pack: center;
+    justify-content: center;
+}
+
+.rune-img-1-container img {
+    width: 24px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.8)
+}
+
+.rune-img-2-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    -webkit-box-pack: center;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.rune-img-2-container img {
+    width: 24px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.8)
+}
+
 .lane-img {
     position: absolute;
     display: flex;
@@ -933,3 +962,18 @@ div.flex-column0.win {
     border-right: 0px;
 }
 
+.flex-column7 button {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.flex-column7 button img {
+    position: absolute;
+    bottom: 7px;
+    left: 10px;
+    margin-left: -7px;
+    width: 14px;
+    opacity: 0.4;
+}
