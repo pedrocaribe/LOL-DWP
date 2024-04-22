@@ -968,6 +968,7 @@ div.flex-column0.win {
     height: 100%;
     background: transparent;
     border: none;
+    cursor: pointer;
 }
 
 .flex-column7 button img {
