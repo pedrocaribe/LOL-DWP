@@ -91,7 +91,7 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
                 match = await match_dict(match_id, data, players)
                 await get_image_path(match=match, RIOT_DATA=RIOT_DATA)
 
- 
+
                 matches.append(match)
 
             def date_sort(e):
@@ -108,7 +108,7 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
         failed_player2 = True if not players['player2'] else False
         print(failed_player2)
         print("NOT FOUND ANY MATCHES")
-    
+    return None
 
 
 
