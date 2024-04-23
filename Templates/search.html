@@ -37,9 +37,10 @@
                 const winRateContainer = document.querySelector('.win-rate');
                 const matchesContainer = document.querySelector('.outter-outter-div');
 
-
+                const matches = data.matches;
+                const players = data.players;
                 
-                data.forEach(match => {
+                matches.forEach(match => {
 
                     const matchElement = document.createElement("div")
                     win_lose_p1 = `${match.win_lose_p1 ? 'win' : 'lose'}`

@@ -105,7 +105,8 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
             
             end = time.time()
             print(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}")
-            return matches
+            
+            return jsonify({'matches':matches, 'players':players})
                 
     else:
         return print("DIDNT FIND PLAYER")
