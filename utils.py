@@ -27,13 +27,6 @@ def duration(func):
     return wrapper
 
 
-
-
-
-
-
-
-
 """Usage:
 
 Run function_1 and function_2 in parallel through threading:
@@ -74,12 +67,6 @@ async def run_parallel(*functions: Awaitable[Any]) -> None:
 async def run_sequence(*functions: Awaitable[Any]) -> None:
     for function in functions:
         await function
-
-
-
-
-
-
 
 
 @duration
@@ -238,17 +225,6 @@ async def fetch_account_summoner(player, region):
         process_accounts(player),
         process_rank(player)
     )
-
-    
-
-
-
-    # tasks_accounts = [process_accounts(player) for player in players]
-    # results = await asyncio.gather(*tasks_accounts)
-
-    # tasks_rank = [process_rank(player) for player in players]
-    # new_results = await asyncio.gather(*tasks_rank)
-
 
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
