@@ -1,13 +1,10 @@
-import aiohttp, asyncio, time, datetime
-import requests
-import concurrent.futures
-import functools
+import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools
 
 from settings import *
 
-
 from contextlib import contextmanager
 from datetime import datetime
+from typing import Awaitable, Any
 
 def duration(func):
     @contextmanager
@@ -28,6 +25,62 @@ def duration(func):
                     return (await func(*args, **kwargs))
             return tmp()
     return wrapper
+
+
+
+
+
+
+
+
+
+"""Usage:
+
+Run function_1 and function_2 in parallel through threading:
+
+await run_parallel(
+    function_1(args),
+    function_2(args)
+)
+
+Run function_3 and function_4 in sequence, one after the other:
+
+await run_sequence(
+    function_3(args),
+    function_4(args)
+)
+
+Nested:
+Run function_1, function_2 and run_sequence in parallel, 
+inside run_sequence run function_3 and function_4 in sequence.
+
+await run_parallel(
+    function_1(args),
+    function_2(args),
+    run_sequence(
+        function_3,
+        function_4
+    )
+)
+"""
+
+# Asyncio function to run functions in parallel thread
+@duration
+async def run_parallel(*functions: Awaitable[Any]) -> None:
+    await asyncio.gather(*functions)
+
+# Function to run functions in sequence
+@duration
+async def run_sequence(*functions: Awaitable[Any]) -> None:
+    for function in functions:
+        await function
+
+
+
+
+
+
+
 
 @duration
 def ddragon_data():
@@ -50,6 +103,13 @@ def ddragon_data():
     # Generic Items URL for icon images
     ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/img/item/"
     ret['ITEMS_URL'] = ITEMS_URL
+
+    RUNES_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/runesReforged.json"
+    runes = requests.get(RUNES_URL).json()
+    ret['runes'] = runes
+
+
+
     return ret
 
 
@@ -62,10 +122,10 @@ async def match_dict(id, data, players):
     ret_dict = {}
 
     # Player 1
-    ret_dict['puuid_p1'] = players['player1']['puuid']
-    ret_dict['summ_name_p1'] = players['player1']['name']
-    ret_dict['tag_line_p1'] = players['player1']['tag']
-    ret_dict['idx_p1'] = data['metadata']['participants'].index(players['player1']['puuid'])
+    ret_dict['puuid_p1'] = players[0]['puuid']
+    ret_dict['summ_name_p1'] = players[0]['name']
+    ret_dict['tag_line_p1'] = players[0]['tag']
+    ret_dict['idx_p1'] = data['metadata']['participants'].index(players[0]['puuid'])
     ret_dict['stats_p1'] = data['info']['participants'][ret_dict['idx_p1']]
     ret_dict['level_p1'] = ret_dict['stats_p1']['champLevel']
     ret_dict['champion_id_p1'] = ret_dict['stats_p1']['championId']
@@ -84,10 +144,10 @@ async def match_dict(id, data, players):
     ret_dict['rune_2_p1'] = ret_dict['stats_p1']['perks']['styles'][1]['selections'][0]['perk']
 
     # Player 2
-    ret_dict['puuid_p2'] = players['player2']['puuid']
-    ret_dict['summ_name_p2'] = players['player2']['name']
-    ret_dict['tag_line_p2'] = players['player2']['tag']
-    ret_dict['idx_p2'] = data['metadata']['participants'].index(players['player2']['puuid'])
+    ret_dict['puuid_p2'] = players[1]['puuid']
+    ret_dict['summ_name_p2'] = players[1]['name']
+    ret_dict['tag_line_p2'] = players[1]['tag']
+    ret_dict['idx_p2'] = data['metadata']['participants'].index(players[1]['puuid'])
     ret_dict['stats_p2'] = data['info']['participants'][ret_dict['idx_p2']]
     ret_dict['level_p2'] = ret_dict['stats_p2']['champLevel']
     ret_dict['champion_id_p2'] = ret_dict['stats_p2']['championId']
@@ -107,13 +167,15 @@ async def match_dict(id, data, players):
 
     # Match
     ret_dict['match_id'] = id
-    ret_dict['region'] = players['player1']['region']
+    ret_dict['region'] = players[0]['region']
     ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
     ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
     ret_dict['creation_time_ago'] = await time_ago(data['info']['gameCreation'])
     ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60:02}" # use zfill to fill with 0
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
+
+
 
 
 async def fetch_match_data(match_id, region):
@@ -136,6 +198,58 @@ async def fetch_all_matches(match_list, region):
 
     return return_value
 
+@duration
+async def validate_all_players(players, region):
+
+    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
+
+    async def validate_puuid(player):
+
+        name, tag = player.strip().split('#')
+        data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
+        print(data)
+        ret = {
+            'name':name,
+            'tag':tag,
+            'region':region,
+            'puuid':data['puuid']
+        } if data else None
+        return ret
+
+    tasks = [validate_puuid(player) for key, player in players.items()]
+    results = await asyncio.gather(*tasks)
+
+    return results
+
+
+@duration
+async def fetch_account_summoner(player, region):
+
+    async def process_accounts(player):
+        data = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}"))
+        player['summoner'] = data
+
+    async def process_rank(player):
+        data = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}"))
+        player['league'] = data
+
+    
+    await run_sequence(
+        process_accounts(player),
+        process_rank(player)
+    )
+
+    
+
+
+
+    # tasks_accounts = [process_accounts(player) for player in players]
+    # results = await asyncio.gather(*tasks_accounts)
+
+    # tasks_rank = [process_rank(player) for player in players]
+    # new_results = await asyncio.gather(*tasks_rank)
+
+
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
 
@@ -157,7 +271,8 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
         'CHAMPIONS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json",
         'SPELLS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/summoner.json",
         'ITEMS_URL':f"http://ddragon.leagueoflegends.com/cdn/{version}/img/item/",
-        'VERSION_API':"https://ddragon.leagueoflegends.com/api/versions.json"
+        'VERSION_API':"https://ddragon.leagueoflegends.com/api/versions.json",
+        'LEAGUE_V4':f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/"
     }
 
     selected_url = next(value for key, value in urls.items() if riot_api in key)
@@ -190,8 +305,18 @@ async def get_image_path(match=None, RIOT_DATA=None):
 
         return [await get_image_path_item(item_number) for item_number in item_numbers if item_number != str(0)]
 
-    def get_image_url(data, url_prefix):
+    async def get_image_url(data, url_prefix):
         return f"{url_prefix}{data['id']}.png" if data else None
+    
+    async def find_icon_by_id(key):
+        for style in RIOT_DATA['runes']:
+            for slot in style["slots"]:
+                for rune in slot["runes"]:
+                    if rune["id"] == key:
+                        return rune["icon"]
+
+        # If target rune ID not found: 
+        return None
 
     champ_p1_data = await get_data_id('champions', match['champion_id_p1'])
     champ_p2_data = await get_data_id('champions', match['champion_id_p2'])
@@ -201,20 +326,29 @@ async def get_image_path(match=None, RIOT_DATA=None):
     spell_2_p2_data = await get_data_id('spells', match['spell_2_p2'])
     image_list_p1 = await get_image_list(match['items_p1'])
     image_list_p2 = await get_image_list(match['items_p2'])
+    rune_1_p1 = await find_icon_by_id(match['rune_1_p1'])
+    rune_2_p1 = await find_icon_by_id(match['rune_2_p1'])
+    rune_1_p2 = await find_icon_by_id(match['rune_1_p2'])
+    rune_2_p2 = await find_icon_by_id(match['rune_2_p2'])
 
     champion_url = f"https://ddragon.leagueoflegends.com/cdn/{RIOT_DATA['version']}/img/champion/"
     spell_url = f"http://ddragon.leagueoflegends.com/cdn/{RIOT_DATA['version']}/img/spell/"
+    runes_url = f"https://ddragon.leagueoflegends.com/cdn/img/"
 
     match['champ_p1_data'] = champ_p1_data
     match['champ_p2_data'] = champ_p2_data
-    match['champ_p1_img'] = get_image_url(champ_p1_data, champion_url)
-    match['champ_p2_img'] = get_image_url(champ_p2_data, champion_url)
-    match['spell_1_p1_img'] = get_image_url(spell_1_p1_data, spell_url)
-    match['spell_2_p1_img'] = get_image_url(spell_2_p1_data, spell_url)
-    match['spell_1_p2_img'] = get_image_url(spell_1_p2_data, spell_url)
-    match['spell_2_p2_img'] = get_image_url(spell_2_p2_data, spell_url)
+    match['champ_p1_img'] = await get_image_url(champ_p1_data, champion_url)
+    match['champ_p2_img'] = await get_image_url(champ_p2_data, champion_url)
+    match['spell_1_p1_img'] = await get_image_url(spell_1_p1_data, spell_url)
+    match['spell_2_p1_img'] = await get_image_url(spell_2_p1_data, spell_url)
+    match['spell_1_p2_img'] = await get_image_url(spell_1_p2_data, spell_url)
+    match['spell_2_p2_img'] = await get_image_url(spell_2_p2_data, spell_url)
     match['items_p1_img'] = image_list_p1 if image_list_p1 else None
     match['items_p2_img'] = image_list_p2 if image_list_p2 else None
+    match['rune_1_p1_img'] = f"{runes_url}{rune_1_p1}"
+    match['rune_2_p1_img'] = f"{runes_url}{rune_2_p1}"
+    match['rune_1_p2_img'] = f"{runes_url}{rune_1_p2}"
+    match['rune_2_p2_img'] = f"{runes_url}{rune_2_p2}"
 
 async def time_ago(match_time):
     """Calculates the time difference from the match event time in Unix time.

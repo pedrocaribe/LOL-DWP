@@ -38,6 +38,10 @@ https://developer.riotgames.com/docs/lol#data-dragon
 - Riot API Docs
 https://developer.riotgames.com/docs/lol
 
+- Threading / ASYNCIO
+https://www.youtube.com/watch?v=2IW-ZEui4h4
+
+
 
 """
 
@@ -52,45 +56,29 @@ async def search():
 
 @app.route('/fetch-data', methods=['GET', 'POST'])
 async def fetch_data(RIOT_DATA=RIOT_DATA):
+
+    start = time.time()
+
     form_data = request.get_json()
-    region = form_data['selected-region']
+    region = form_data.pop('selected-region')
 
-    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
+    players = await validate_all_players(form_data, region)
 
-    players = {}
+    if players[0] and players[1]:
 
-    for i in range(1,3):
-        player = {}
-
-        player["name"], player["tag"] = form_data[f'game_name_{i}'].strip().split('#')
-        player["region"] = region
-
-        player_account = await fetch_riot_data(f'{ACCOUNT_V1}{player["name"]}/{player["tag"]}?api_key={RIOT_TOKEN}')
-
-        if player_account:
-            player["puuid"] = player_account['puuid']
-        else:
-            player = None
-        
-        players[f'player{i}'] = player
-
-    if players['player1'] and players['player2']:
         current_version = (await fetch_riot_data(await get_url(riot_api="VERSION_API")))[0]
-
-        player_1_summoner = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{players['player1']['puuid']}?api_key={RIOT_TOKEN}"))
-        player_1_rank = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player_1_summoner['id']}?api_key={RIOT_TOKEN}"))
-        player_2_summoner = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{players['player2']['puuid']}?api_key={RIOT_TOKEN}"))
-        player_2_rank = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player_2_summoner['id']}?api_key={RIOT_TOKEN}"))
-
-        print(player_1_rank, player_2_rank)
-
+        
         if current_version != RIOT_DATA["version"]:
             RIOT_DATA = ddragon_data()
-        
-        for id_key, player in players.items():
-            await get_matches(player)
 
-        played_with = list((set(players['player1']["matches"]).intersection(players['player2']["matches"])))
+        await run_parallel(
+            fetch_account_summoner(players[0], region),
+            fetch_account_summoner(players[1], region),
+            get_matches(players[0]),
+            get_matches(players[1])
+            )
+        
+        played_with = list((set(players[0]["matches"]).intersection(players[1]["matches"])))
         
         if played_with:
             
@@ -114,14 +102,18 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
             matches.sort(reverse=True, key=date_sort)
 
             print(f'{fy + bg + sb}Preparing to send data to Website{sres}')
+            
+            end = time.time()
+            print(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}")
             return matches
                 
     else:
+        return print("DIDNT FIND PLAYER")
+
         failed_player1 = True if not players['player1'] else False
         print(failed_player1)
         failed_player2 = True if not players['player2'] else False
         print(failed_player2)
-        print("NOT FOUND ANY MATCHES")
     return None
 
 
