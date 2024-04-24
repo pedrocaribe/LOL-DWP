@@ -1,3 +1,5 @@
+// Constants
+
 const regionCtn = document.querySelector(".region-container")
 const regionDropdown = document.querySelector(".region-dropdown")
 const regionBtnText = document.querySelector(".region-button-text")
@@ -7,7 +9,7 @@ regionCtn.addEventListener("click", () => {
     regionDropdown.classList.toggle("show") // Toggle visibility of dropdown
 })
 
-// Handle selecting a region from the dropdown (example) and updating div and hidden input
+// Handle selecting a region from the dropdown and updating div and hidden input
 regionDropdown.addEventListener("click", (event) => {
     const selectedRegion = event.target.textContent // Get the text content of the clicked list item
     const hiddenInput = document.getElementById("selected-region")
@@ -15,6 +17,8 @@ regionDropdown.addEventListener("click", (event) => {
     regionBtnText.textContent = selectedRegion // Update the button text
     hiddenInput.value = selectedRegion
     regionDropdown.classList.remove("show") // Hide the dropdown after selection
+    
+    event.stopPropagation(); // Stop the click event from bubbling up 
 })
 
 document.addEventListener("click", (event) => {
@@ -22,7 +26,7 @@ document.addEventListener("click", (event) => {
     const isClickInsideDropdown = regionDropdown.contains(event.target)
 
     if (!isClickInsideContainer && !isClickInsideDropdown) {
-        regionDropdown.classList.remove("show") // Close if clicked outside
+        regionDropdown.classList.remove("show") // Close dropdown if clicked outside
     }
 })
 
