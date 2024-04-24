@@ -30,7 +30,7 @@ document.addEventListener("click", (event) => {
     }
 })
 
-// Placeholder for your existing click-outside logic
+// Click Outside Logic
 document.addEventListener("click", (event) => {
     let clickedInside = false
 
