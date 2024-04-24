@@ -199,11 +199,11 @@ async def validate_all_players(players, region):
             'name':name,
             'tag':tag,
             'region':region,
-            'puuid':data['puuid']
-        } if data else None
+            'puuid':data['puuid'] if data else None
+        }
         return ret
 
-    tasks = [validate_puuid(player) for key, player in players.items()]
+    tasks = [validate_puuid(player) for _, player in players.items()]
     results = await asyncio.gather(*tasks)
 
     return results
