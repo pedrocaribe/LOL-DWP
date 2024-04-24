@@ -79,3 +79,17 @@ playerInputs.forEach((playerInput) => {
     })
 })
 
+const searchForm = document.getElementById("search")
+const field1 = document.getElementById("game_name_1")
+const field2 = document.getElementById("game_name_2")
+
+searchForm.addEventListener('submit', function(event) {
+    if (field1.value == field2.value) {
+        event.preventDefault(); // Prevent form submission
+        Swal.fire({
+            title: 'Error!',
+            text: 'Players must not be the same!',
+            icon: 'error' 
+          });
+    }
+});
