@@ -41,7 +41,8 @@ https://developer.riotgames.com/docs/lol
 - Threading / ASYNCIO
 https://www.youtube.com/watch?v=2IW-ZEui4h4
 
-
+- Regex Testing
+https://regex101.com
 
 """
 
