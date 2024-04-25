@@ -186,14 +186,14 @@ input:focus {
 }
 
 .superior-header .sup {
-    padding: 0px px 26px;
+    padding: 0px 25px 40px;
     z-index: 9999999;
     top: 0px;
     display: flex;
     flex-direction: row;
     flex: 1 1 0%;
     background: rgb(60, 70, 107);
-    box-shadow: rgba(0, 0, 0, 0.6) 0px 3px 6px;
+    box-shadow: rgba(0, 0, 0, 0.6) 0px 0.5px 6px;
 }
 
 .superior-header .sup .sup-logo {
@@ -286,6 +286,11 @@ footer {
 .footer-copyright dl {
     max-width: 620px;
     margin-left: 35px;
+}
+
+.footer-copyright img {
+    width: 80px;
+    height: 60px;
 }
 
 .copyright-title {
