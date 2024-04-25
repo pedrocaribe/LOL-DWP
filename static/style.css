@@ -1030,6 +1030,11 @@ div.flex-column0.win {
     margin-top: 14px;
 }
 
+.search-again {
+    display: flex;
+    justify-content: center;
+}
+
 .feedback-instructions {
     margin-top: 34px;
     margin-bottom: 25px;
@@ -1039,3 +1044,8 @@ div.flex-column0.win {
     color: rgb(127, 127, 127);
     line-height: 30px;
 }
+
+div:where(.swal2-container) h2:where(.swal2-title) {
+    font-size: 1.7em;
+}
+
