@@ -112,12 +112,5 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
         print("DIDNT FIND PLAYER")
         return players
 
-
-
-
-
-
-
-
 if __name__ == "__main__":
     app.run(port=8080)
