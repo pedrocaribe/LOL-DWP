@@ -84,7 +84,12 @@ const field1 = document.getElementById("game_name_1")
 const field2 = document.getElementById("game_name_2")
 
 searchForm.addEventListener('submit', function(event) {
-    if (field1.value == field2.value) {
+    const re = /\s*(?:#|$)\s*/;
+
+    const name1 = field1.value.trim().split(re).join(" ");
+    const name2 = field2.value.trim().split(re).join(" ");
+
+    if (name1 == name2) {
         event.preventDefault(); // Prevent form submission
 
         Swal.fire({
