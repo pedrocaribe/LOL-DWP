@@ -64,7 +64,7 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
 
     players = await validate_all_players(form_data, region)
 
-    if players[0] and players[1]:
+    if players[0]['puuid'] and players[1]['puuid']:
 
         current_version = (await fetch_riot_data(await get_url(riot_api="VERSION_API")))[0]
         
@@ -105,24 +105,12 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
             
             end = time.time()
             print(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}")
-            
+
             return jsonify({'matches':matches, 'players':players})
                 
     else:
-        return print("DIDNT FIND PLAYER")
-
-        failed_player1 = True if not players['player1'] else False
-        print(failed_player1)
-        failed_player2 = True if not players['player2'] else False
-        print(failed_player2)
-    return None
-
-
-
-
-
-
-
+        print("DIDNT FIND PLAYER")
+        return players
 
 
 
