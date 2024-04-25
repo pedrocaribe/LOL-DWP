@@ -86,10 +86,18 @@ const field2 = document.getElementById("game_name_2")
 searchForm.addEventListener('submit', function(event) {
     if (field1.value == field2.value) {
         event.preventDefault(); // Prevent form submission
+
         Swal.fire({
-            title: 'Error!',
-            text: 'Players must not be the same!',
-            icon: 'error' 
-          });
+            title: "Players must not be the same!",
+            width: 500,
+            color: "#716add",
+            background: "#fff",
+            backdrop: `
+                rgba(0,0,123,0.2)
+                url("/images/nyan-cat.gif")
+                left top
+                no-repeat
+            `
+        });
     }
 });
