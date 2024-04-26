@@ -33,4 +33,6 @@ General Ideas
                 Player 2 KDA
         Right Side:
             TBD
-    
+
+> New Idea
+>> Create a DB to store matches in order to have faster response
