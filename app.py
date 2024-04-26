@@ -120,9 +120,8 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
 @app.route('/send-email', methods=['POST'])
 async def send_email():
     
-    sender = "dev.pcaribe@gmail.com"
+    sender, recv = "dev.pcaribe@gmail.com"
     passwd = MAIL_PASSWD
-    recv = "dev.pcaribe@gmail.com"
     subj = "Contact From DWP"
 
     data = request.get_json()
