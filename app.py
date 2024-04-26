@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 from colorama import Back, Fore,Style
 
+import smtplib, ssl
+from email.message import EmailMessage
+
+
 import json
 
 # Styling
@@ -20,7 +24,6 @@ from utils import *
 
 app = Flask(__name__, static_folder='static', template_folder='Templates')
 
-app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 RIOT_DATA = ddragon_data()
 
@@ -113,5 +116,35 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
         print("DIDNT FIND PLAYER")
         return players
 
+
+@app.route('/send-email', methods=['POST'])
+async def send_email():
+    
+    sender = "dev.pcaribe@gmail.com"
+    passwd = MAIL_PASSWD
+    recv = "dev.pcaribe@gmail.com"
+    subj = "Contact From DWP"
+
+    data = request.get_json()
+    name = data['name']
+    email = data['email']
+    message = data['message']
+
+    em = EmailMessage()
+    em['From'] = sender
+    em['to'] = recv
+    em['Subject'] = subj
+    em.set_content(f"Name: {name}\nEmail: {email}\nMessage: {message}")
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        try:
+            smtp.login(sender, passwd)
+            smtp.sendmail(sender, recv, em.as_string())
+            return jsonify({"message":"E-mail sent successfully"}), 200
+        
+        except Exception as e:
+            return jsonify({"message":"E-mail failed to send", "error":str(e)}), 500
+    
 if __name__ == "__main__":
     app.run(port=8080)
