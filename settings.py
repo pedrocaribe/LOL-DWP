@@ -9,7 +9,7 @@ DEBUG = os.getenv('DEBUG', False)
 
 if DEBUG:
 
-    env_path = Path('.') /  '.env.debug'
+    env_path = Path('.') / '.env.debug'
     load_dotenv(dotenv_path=env_path)
     from settings_files._global import *
     print(f'{Fore.WHITE + Back.YELLOW}We are in DEBUG mode{Style.RESET_ALL}')
