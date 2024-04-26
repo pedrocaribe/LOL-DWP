@@ -4,7 +4,7 @@ document.getElementById('contact-button').addEventListener('click', function() {
         html:
         '<input id="swal-input1" class="swal2-input" placeholder="Name">' +
         '<input id="swal-input2" class="swal2-input" placeholder="Email">' +
-        '<textarea id="swal-input3" class="swal2-textarea" placeholder="Message"></textarea>',
+        '<textarea id="swal-input3" class="swal2-textarea" placeholder="Message" style="width: 370px; height: 250px; font-size: 13px;"></textarea>',
         focusConfirm: false,
         preConfirm: () => {
             const name = document.getElementById('swal-input1').value;
@@ -12,6 +12,12 @@ document.getElementById('contact-button').addEventListener('click', function() {
             const message = document.getElementById('swal-input3').value;
             if (!email || !message) {
                 Swal.showValidationMessage("Please enter email and message");
+                return false;
+            }
+
+            else if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)))
+            {
+                Swal.showValidationMessage("Please enter a valid email address")
                 return false;
             }
         
