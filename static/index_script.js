@@ -11,12 +11,26 @@ regionCtn.addEventListener("click", () => {
 
 // Handle selecting a region from the dropdown and updating div and hidden input
 regionDropdown.addEventListener("click", (event) => {
-    const selectedRegion = event.target.textContent // Get the text content of the clicked list item
-    const hiddenInput = document.getElementById("selected-region")
 
-    regionBtnText.textContent = selectedRegion // Update the button text
-    hiddenInput.value = selectedRegion
-    regionDropdown.classList.remove("show") // Hide the dropdown after selection
+    // Check if the clicked element or any of its parents have the class 'dd-item'
+    let targetElement = event.target;
+
+    // Traverse up the DOM tree unless a dd-item or the dd-div-container is reached
+    while (targetElement != null && !targetElement.classList.contains('dd-item') && !targetElement.classList.contains('dd-div-container')) {
+        targetElement = targetElement.parentElement;
+    }
+
+    // Only proceed if a dd-item was indeed clicked
+    if (targetElement && targetElement.classList.contains('dd-item')) {
+        const selectedRegion = targetElement.textContent.trim();
+
+        // const selectedRegion = event.target.textContent // Get the text content of the clicked list item
+        const hiddenInput = document.getElementById("selected-region")
+
+        regionBtnText.textContent = selectedRegion // Update the button text
+        hiddenInput.value = selectedRegion // Update the hidden input value
+        regionDropdown.classList.remove("show") // Hide the dropdown after selection
+    }
     
     event.stopPropagation(); // Stop the click event from bubbling up 
 })
