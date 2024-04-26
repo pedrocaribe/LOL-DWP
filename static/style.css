@@ -418,7 +418,6 @@ footer {
     flex-direction: row;
     -webkit-box-align: center;
     align-items: center;
-    cursor: pointer;
 }
 
 .region-btn {
@@ -448,6 +447,7 @@ footer {
     border-width: 5.5px 4px 0px;
     border-style: solid;
     border-color: rgb(49, 49, 49) transparent transparent;
+    cursor: pointer;
 }
 
 .region-dropdown {
@@ -468,6 +468,13 @@ footer {
     display: block;
     position: absolute;
     top: 70px;
+    opacity: 0;
+    animation: region-dropdown-fade-in 0.5s forwards;
+}
+
+@keyframes region-dropdown-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .dd-div-container {
@@ -490,7 +497,10 @@ footer {
 
 .dd-item {
     margin: 5px 7px;
+    cursor: pointer;
 }
+
+.dd-item div:hover {background-color: rgb(105, 190, 116);}
 
 .dd-item div {
     display: flex;
@@ -505,6 +515,7 @@ footer {
     width: 48px;
     height: 28px;
     opacity: 1;
+    transition: background-color 0.3s;
 }
 
 .dd-item span {
