@@ -47,6 +47,10 @@ https://www.youtube.com/watch?v=2IW-ZEui4h4
 - Regex Testing
 https://regex101.com
 
+-Sending SMTP e-mail with Gmail
+https://mailtrap.io/blog/python-send-email-gmail/#How-to-send-an-email-with-Python-via-Gmail-SMTP
+
+
 """
 
 @app.route('/')
