@@ -1085,12 +1085,15 @@ div.flex-column0.win {
 
 .feedback-instructions {
     margin-top: 34px;
-    margin-bottom: 25px;
     font-size: 14px;
     text-align: center;
     white-space: pre;
     color: rgb(127, 127, 127);
     line-height: 30px;
+}
+
+#search-button {
+    margin-top: 25px;
 }
 
 div:where(.swal2-container) h2:where(.swal2-title) {
