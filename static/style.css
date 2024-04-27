@@ -194,7 +194,7 @@ input:focus {
 }
 
 .superior-header .sup {
-    padding: 0px 25px 40px;
+    padding: 0px 20px 35px;
     z-index: 9999999;
     top: 0px;
     display: flex;
@@ -252,7 +252,7 @@ input:focus {
 .contact-container button {
     background-color: transparent;
     border: none;
-    padding: 5px 10px;
+    padding: 20px 7px 7px;
     display: inline-flex;
     align-items: center;
     color: rgb(223, 223, 223);
@@ -640,10 +640,18 @@ div.flex-column0.win {
     background-color: rgb(93, 156, 235);
 }
 
-.flex-column1 {
+.flex-column1.win {
     z-index: 2;
     align-items: flex-start;
     width: 100px;
+    background: linear-gradient(89deg, transparent, rgb(231, 240, 252));
+}
+
+.flex-column1.lose {
+    z-index: 2;
+    align-items: flex-start;
+    width: 100px;
+    background: linear-gradient(89deg, transparent, rgb(251, 236, 234));
 }
 
 .flex-column1 h5 {
@@ -654,9 +662,11 @@ div.flex-column0.win {
 
 .flex-column1 h5.lose {
     color: rgb(227, 126, 116);
+    background: transparent;
 }
 .flex-column1 h5.win {
     color: rgb(93, 156, 235);
+    background: transparent;
 }
 
 .flex-column1 p {
@@ -1092,7 +1102,7 @@ div.flex-column0.win {
     line-height: 30px;
 }
 
-#search-button {
+#search-again-button {
     margin-top: 25px;
 }
 
