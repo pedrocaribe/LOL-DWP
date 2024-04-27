@@ -6,6 +6,10 @@ document.getElementById('contact-button').addEventListener('click', function() {
         '<input id="swal-input2" class="swal2-input" placeholder="Email">' +
         '<textarea id="swal-input3" class="swal2-textarea" placeholder="Message" style="width: 370px; height: 250px; font-size: 13px;"></textarea>',
         focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Send",
+        cancelButtonText: "Cancel",
+        cancelButtonColor: "#FF0000",
         preConfirm: () => {
             const name = document.getElementById('swal-input1').value;
             const email = document.getElementById('swal-input2').value;
