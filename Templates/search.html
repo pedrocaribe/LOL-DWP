@@ -11,7 +11,7 @@
 <div class="loader" id="loader">
     <span class="binary"></span>
     <span class="binary"></span>
-    <span class="getting-there">LOADING MATCHES DATA...</span>
+    <span class="getting-there">FETCHING PAST 100 MATCHES DATA...</span>
 </div>
 
 
@@ -43,13 +43,15 @@
                 const players = data.players;
 
                 if (!data.matches) {
+                    let playerFound = false
+
                     const feedbackElement = document.createElement("div");
                     feedbackElement.classList.add("feedback-container");
 
                     // Create feedback box div
                     const feedbackBox = document.createElement("div");
                     feedbackBox.classList.add("feedback-box");
-
+                    
                     if (!data[0].puuid && !data[1].puuid) {
                         console.log(data)
                         feedbackBox.innerHTML = `
@@ -77,6 +79,7 @@
                             <span class="result-return" style="margin-top: 20px;">
                                 is Not a registered summoner.
                             </span>
+                        </div>
                         `
                     }
 
@@ -90,8 +93,25 @@
                             <span class="result-return" style="margin-top: 20px;">
                                 is Not a registered summoner.
                             </span>
+                        </div>
                         `
                     }
+
+                    else {
+                        playerFound = true;
+                        
+                        feedbackBox.innerHTML = `
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="player-name">"${data[0].name}<span class="player-tag">#${data[0].tag}</span>"</span>
+                            <h1>and</h1>
+                            <span class="player-name">"${data[1].name}<span class="player-tag">#${data[1].tag}</span>"</span>
+                            <span class="result-return" style="margin-top: 20px;">
+                                Have Not played togheter in the past 100 games.
+                            </span>
+                        </div>
+                        `
+                    }
+
                     const feedbackInstructions = document.createElement("span")
                     feedbackInstructions.classList.add("feedback-instructions")
 
@@ -111,7 +131,7 @@
                     `
                 
                     
-                    feedbackBox.append(feedbackInstructions);
+                    !playerFound && feedbackBox.append(feedbackInstructions);
                     feedbackBox.appendChild(searchAgainButton); 
 
 
