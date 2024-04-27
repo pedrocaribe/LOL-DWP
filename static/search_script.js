@@ -23,6 +23,7 @@ function hideLoadingIndicator() {
     document.getElementById('loader').style.display = 'none';
     document.getElementById('result_header').style.display = 'block';
 }
+
 function updateUI(data) {
     const feedbackContainer = document.querySelector('.feedback')
             const winRateContainer = document.querySelector('.win-rate');
