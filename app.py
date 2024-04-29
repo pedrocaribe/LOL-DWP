@@ -1,23 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 import logging
-from colorama import Back, Fore,Style
 
 import smtplib, ssl
 from email.message import EmailMessage
-
-
-# Styling
-fy = Fore.YELLOW
-fw = Fore.WHITE
-fg = Fore.GREEN
-fr = Fore.RED
-bg = Back.GREEN
-br = Back.RED
-bb = Back.BLACK
-bw = Back.WHITE
-bres = Back.RESET
-sb = Style.BRIGHT
-sres = Style.RESET_ALL
 
 from settings import *
 from utils import *
@@ -33,34 +18,7 @@ logger = logging.getLogger(__name__)
 logger.info(RIOT_TOKEN)
 app = Flask(__name__, static_folder='static', template_folder='Templates')
 
-
 RIOT_DATA = ddragon_data()
-
-"""Documentation consulted
-
-- Difference between HTTPX, requests and AIOHTTP
-https://oxylabs.io/blog/httpx-vs-requests-vs-aiohttp
-
-- AIOHTTP Documentation
-https://docs.aiohttp.org/en/stable/
-
-- Riot Data Dragon Docs
-https://developer.riotgames.com/docs/lol#data-dragon
-
-- Riot API Docs
-https://developer.riotgames.com/docs/lol
-
-- Threading / ASYNCIO
-https://www.youtube.com/watch?v=2IW-ZEui4h4
-
-- Regex Testing
-https://regex101.com
-
--Sending SMTP e-mail with Gmail
-https://mailtrap.io/blog/python-send-email-gmail/#How-to-send-an-email-with-Python-via-Gmail-SMTP
-
-
-"""
 
 @app.route('/')
 async def index():
