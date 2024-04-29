@@ -7,7 +7,7 @@ from colorama import Back, Fore,Style
 # Check if it was set correctly by issuing: echo $Env:FLASK_ENV
 
 current_env = os.getenv('FLASK_ENV', 'production')
-dotenv_path = Path('.') / ('.env.debug' if current_env == 'development' else '.env')
+dotenv_path = Path('.') / ('.env.debug' if current_env == 'development' else '.env.production')
 print(f'Loading .ENV file from {dotenv_path}')
 load_dotenv(dotenv_path=dotenv_path)
 
