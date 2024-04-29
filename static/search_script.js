@@ -312,7 +312,7 @@ function updateUI(data) {
                         <div class="col flex-column5">
                             
                         </div>
-                        <div class="col flex-column7">
+                        <div class="col flex-column7" id="more-match-details">
                             <button>
                                 <img src="./static/icon_arrow_lose.svg" alt="Detail">
                             </button>
@@ -320,6 +320,34 @@ function updateUI(data) {
                     </div>
                 `;
                 matchesContainer.appendChild(matchElement);
+
+                const clickableRow = matchElement.querySelector('.flex-column7');
+                clickableRow.addEventListener("click", function() {
+                    toggleMatchDetails(match, matchElement)
+                })
+
                 })
             }
+}
+
+function toggleMatchDetails(match, matchElement) {
+    let detailsDiv = matchElement.nextElementSibling;
+    if (detailsDiv && detailsDiv.classList.contains("match-details")) {
+        detailsDiv.style.display = detailsDiv.style.display === "none" ? "block" : "none";
+    } else {
+        detailsDiv = document.createElement("div");
+        detailsDiv.classList.add("match-details");
+        detailsDiv.innerHTML = `
+            <div class="details-container">
+                <div style="flex: 1 1 0%">
+                    <div style="display: flex; flex-direction: column;>
+                        <table class="match-team"></table>
+                        <table class="match-team"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="match-link"></div>
+        `
+        matchElement.parentNode.insertBefore(detailsDiv, matchElement.nextSibling);
+    }
 }
