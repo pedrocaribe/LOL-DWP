@@ -1040,6 +1040,21 @@ div.flex-column0.win {
     opacity: 0.4;
 }
 
+.details-container {
+    display: flex;
+    background-color: white;
+    flex-direction: row;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+}
+
+.match-team {
+    position: relative;
+    width: 100%;
+    border-style: solid;
+    border-color: rgb(165, 190, 210);
+}
+
 /* NO USER FOUND */
 
 .feedback-container {
