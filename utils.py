@@ -1,4 +1,4 @@
-import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools
+import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools, logging
 
 from settings import *
 
@@ -6,13 +6,17 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Awaitable, Any
 
+
+# Get Logger
+logger = logging.getLogger(__name__)
+
 def duration(func):
     @contextmanager
     def wrapping_logic():
         start_ts = time.time()
         yield
         dur = time.time() - start_ts
-        print('Function {} took {:.2} seconds to execute'.format(func.__name__, dur))
+        logging.info('Function {} took {:.2} seconds to execute'.format(func.__name__, dur)) # Logging
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -188,7 +192,7 @@ async def validate_all_players(players, region):
 
         name, tag = player.strip().split('#')
         data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
-        print(data)
+        # print(data)
         ret = {
             'name':name,
             'tag':tag,
