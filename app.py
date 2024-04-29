@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify, render_template
+import logging
 from colorama import Back, Fore,Style
 
 import smtplib, ssl
 from email.message import EmailMessage
 
-
-import json
 
 # Styling
 fy = Fore.YELLOW
@@ -15,6 +14,7 @@ fr = Fore.RED
 bg = Back.GREEN
 br = Back.RED
 bb = Back.BLACK
+bw = Back.WHITE
 bres = Back.RESET
 sb = Style.BRIGHT
 sres = Style.RESET_ALL
@@ -22,6 +22,15 @@ sres = Style.RESET_ALL
 from settings import *
 from utils import *
 
+# Setup Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)-8s] %(name)-2s:%(module)-1s : %(message)s", style="%",
+    datefmt='%m/%d/%Y %I:%M:%S %p'
+    )
+logger = logging.getLogger(__name__)
+
+logger.info(RIOT_TOKEN)
 app = Flask(__name__, static_folder='static', template_folder='Templates')
 
 
@@ -94,7 +103,7 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
             
             matches_count = len(match_data)
 
-            print(f'{fy + bg + sb}Processed {matches_count} matches{sres}')
+            logger.info(f'Processed {matches_count} matches') # Logging
 
             matches = []
             for match_id, data in match_data.items():
@@ -109,17 +118,17 @@ async def fetch_data(RIOT_DATA=RIOT_DATA):
 
             matches.sort(reverse=True, key=date_sort)
 
-            print(f'{fy + bg + sb}Preparing to send data to Website{sres}')
+            logger.info(f'{fy + bg + sb}Preparing to send data to Website{sres}') # Logging
             
             end = time.time()
-            print(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}")
+            logger.info(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}") # Logging
 
             return jsonify({'matches':matches, 'players':players})
         else:
             return players
         
     else:
-        print("DIDNT FIND PLAYER")
+        logger.error(f'{fr + bw}DID NOT FIND PLAYER{sres}') # Logging
         return players
 
 
