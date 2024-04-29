@@ -1,0 +1,22 @@
+Documentation consulted
+
+- Difference between HTTPX, requests and AIOHTTP
+https://oxylabs.io/blog/httpx-vs-requests-vs-aiohttp
+
+- AIOHTTP Documentation
+https://docs.aiohttp.org/en/stable/
+
+- Riot Data Dragon Docs
+https://developer.riotgames.com/docs/lol#data-dragon
+
+- Riot API Docs
+https://developer.riotgames.com/docs/lol
+
+- Threading / ASYNCIO
+https://www.youtube.com/watch?v=2IW-ZEui4h4
+
+- Regex Testing
+https://regex101.com
+
+-Sending SMTP e-mail with Gmail
+https://mailtrap.io/blog/python-send-email-gmail/#How-to-send-an-email-with-Python-via-Gmail-SMTP
