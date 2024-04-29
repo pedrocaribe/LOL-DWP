@@ -72,32 +72,26 @@ async def run_sequence(*functions: Awaitable[Any]) -> None:
 @duration
 def ddragon_data():
 
-    ret = {}
     VERSION_API = "https://ddragon.leagueoflegends.com/api/versions.json"
     latest_version = requests.get(VERSION_API).json()[0]
-    ret['version'] = latest_version
 
-    # Retrieve champions from Riot API
     CHAMPIONS_URL = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/champion.json"
-    champions = requests.get(CHAMPIONS_URL).json()["data"]
-    ret['champions'] = champions
-
-    # Retrieve spells from Riot API
     SPELLS_URL = f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/summoner.json"
-    spells = requests.get(SPELLS_URL).json()["data"]
-    ret['spells'] = spells
-    
-    # Generic Items URL for icon images
     ITEMS_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/img/item/"
-    ret['ITEMS_URL'] = ITEMS_URL
-
     RUNES_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/runesReforged.json"
+    
+    
+    champions = requests.get(CHAMPIONS_URL).json()["data"]
+    spells = requests.get(SPELLS_URL).json()["data"]
     runes = requests.get(RUNES_URL).json()
-    ret['runes'] = runes
 
-
-
-    return ret
+    return {
+        'version': latest_version,
+        'champions': champions,
+        'spells': spells,
+        'ITEMS_URL': ITEMS_URL,
+        'runes': runes
+    }
 
 
 async def get_matches(player):
