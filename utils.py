@@ -5,10 +5,25 @@ from settings import *
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Awaitable, Any
+from colorama import Back, Fore,Style
 
 
 # Get Logger
 logger = logging.getLogger(__name__)
+
+# Console Styling
+fy = Fore.YELLOW
+fw = Fore.WHITE
+fg = Fore.GREEN
+fr = Fore.RED
+bg = Back.GREEN
+br = Back.RED
+bb = Back.BLACK
+bw = Back.WHITE
+bres = Back.RESET
+sb = Style.BRIGHT
+sres = Style.RESET_ALL
+
 
 def duration(func):
     @contextmanager
@@ -159,8 +174,6 @@ async def match_dict(id, data, players):
     ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60:02}" # use zfill to fill with 0
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
-
-
 
 
 async def fetch_match_data(match_id, region):
