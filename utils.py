@@ -112,13 +112,116 @@ def ddragon_data():
         'runes': runes
     }
 
+async def fetch_riot_data(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.json()
+            elif response.status == 400 or response.status == 404:
+                return None
+            else:
+                raise Exception(f"Riot API request failed with status: {response.status}")
+
+async def get_url(riot_api: str = None, region: str = None, version: str = None):
+
+    """https://leagueoflegends.fandom.com/wiki/Servers"""
+
+    regional = {
+    "AMERICAS":['BR1','LA1','LA2','NA1',],
+    "ASIA":['JP1','KR','PH2','SG2','TW2','TH2','VN2','PH1','SG1','TW1','VN1','TH1'],
+    "EUROPE":['EUN1','EUW1','RU1','TR1'],
+    "SEA":['OC1']
+    }
+
+    regional_choice = next((key for key, regions in regional.items() if region in regions), None)
+
+    urls = {
+        'ACCOUNT_V1':f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/",
+        'MATCH_V5':f"https://{regional_choice}.api.riotgames.com/lol/match/v5/matches/",
+        'SUMMONER_V4':f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/",
+        'CHAMPIONS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json",
+        'SPELLS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/summoner.json",
+        'ITEMS_URL':f"http://ddragon.leagueoflegends.com/cdn/{version}/img/item/",
+        'VERSION_API':"https://ddragon.leagueoflegends.com/api/versions.json",
+        'LEAGUE_V4':f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/"
+    }
+
+    selected_url = next(value for key, value in urls.items() if riot_api in key)
+
+    if selected_url:
+        return selected_url
+    else:
+        raise Exception(f"Unknown Riot API {riot_api}")
+
+
+@duration
+async def validate_all_players(players, region):
+
+    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
+
+    async def validate_puuid(player):
+
+        name, tag = player.strip().split('#')
+        data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
+        # print(data)
+        ret = {
+            'name':name,
+            'tag':tag,
+            'region':region,
+            'puuid':data['puuid'] if data else None
+        }
+        return ret
+
+    tasks = [validate_puuid(player) for _, player in players.items()]
+    results = await asyncio.gather(*tasks)
+
+    return results
+
+@duration
+async def fetch_account_summoner(player, region):
+
+    async def process_accounts(player):
+        data = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}"))
+        player['summoner'] = data
+
+    async def process_rank(player):
+        data = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}"))
+        player['league'] = data
+
+    
+    await run_sequence(
+        process_accounts(player),
+        process_rank(player)
+    )
 
 async def get_matches(player):
     MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
     player["matches"] = (await fetch_riot_data(f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}'))
 
 
+async def fetch_match_data(match_id, region):
+    url = await get_url(riot_api="MATCH_V5", region=region)
+    match_data = await fetch_riot_data(f'{url}{match_id}?api_key={RIOT_TOKEN}')
+    return match_data
+
+
+@duration
+async def fetch_all_matches(match_list, region):
+    return_value = {}
+
+    # Processing time 1.25 sec
+    async def fetch_and_process(match):
+        data = await fetch_match_data(match, region)
+        return_value[match] = data
+
+    tasks = [fetch_and_process(match) for match in match_list]
+    results = await asyncio.gather(*tasks)
+
+    return return_value
+
+
 async def match_dict(id, data, players):
+    
     ret_dict = {}
 
     # Player 1
@@ -176,110 +279,17 @@ async def match_dict(id, data, players):
     return ret_dict
 
 
-async def fetch_match_data(match_id, region):
-    url = await get_url(riot_api="MATCH_V5", region=region)
-    match_data = await fetch_riot_data(f'{url}{match_id}?api_key={RIOT_TOKEN}')
-    return match_data
 
 
-@duration
-async def fetch_all_matches(match_list, region):
-    return_value = {}
-
-    # Processing time 1.25 sec
-    async def fetch_and_process(match):
-        data = await fetch_match_data(match, region)
-        return_value[match] = data
-
-    tasks = [fetch_and_process(match) for match in match_list]
-    results = await asyncio.gather(*tasks)
-
-    return return_value
-
-@duration
-async def validate_all_players(players, region):
-
-    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
-
-    async def validate_puuid(player):
-
-        name, tag = player.strip().split('#')
-        data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
-        # print(data)
-        ret = {
-            'name':name,
-            'tag':tag,
-            'region':region,
-            'puuid':data['puuid'] if data else None
-        }
-        return ret
-
-    tasks = [validate_puuid(player) for _, player in players.items()]
-    results = await asyncio.gather(*tasks)
-
-    return results
 
 
-@duration
-async def fetch_account_summoner(player, region):
-
-    async def process_accounts(player):
-        data = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}"))
-        player['summoner'] = data
-
-    async def process_rank(player):
-        data = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}"))
-        player['league'] = data
-
-    
-    await run_sequence(
-        process_accounts(player),
-        process_rank(player)
-    )
 
 
-async def get_url(riot_api: str = None, region: str = None, version: str = None):
-
-    """https://leagueoflegends.fandom.com/wiki/Servers"""
-
-    regional = {
-    "AMERICAS":['BR1','LA1','LA2','NA1',],
-    "ASIA":['JP1','KR','PH2','SG2','TW2','TH2','VN2','PH1','SG1','TW1','VN1','TH1'],
-    "EUROPE":['EUN1','EUW1','RU1','TR1'],
-    "SEA":['OC1']
-    }
-
-    regional_choice = next((key for key, regions in regional.items() if region in regions), None)
-
-    urls = {
-        'ACCOUNT_V1':f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/",
-        'MATCH_V5':f"https://{regional_choice}.api.riotgames.com/lol/match/v5/matches/",
-        'SUMMONER_V4':f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/",
-        'CHAMPIONS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json",
-        'SPELLS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/summoner.json",
-        'ITEMS_URL':f"http://ddragon.leagueoflegends.com/cdn/{version}/img/item/",
-        'VERSION_API':"https://ddragon.leagueoflegends.com/api/versions.json",
-        'LEAGUE_V4':f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/"
-    }
-
-    selected_url = next(value for key, value in urls.items() if riot_api in key)
-
-    if selected_url:
-        return selected_url
-    else:
-        raise Exception(f"Unknown Riot API {riot_api}")
 
 
-async def fetch_riot_data(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
-            elif response.status == 400 or response.status == 404:
-                return None
-            else:
-                raise Exception(f"Riot API request failed with status: {response.status}")
-            
+
+
+
 async def get_image_path(match=None, RIOT_DATA=None):
 
     async def get_data_id(data_type, data_id):
