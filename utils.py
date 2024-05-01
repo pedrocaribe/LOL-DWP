@@ -119,6 +119,9 @@ async def fetch_riot_data(url):
                 return await response.json()
             elif response.status == 400 or response.status == 404:
                 return None
+            elif response.status == 429:
+                time.sleep(10)
+                return await fetch_riot_data(url)
             else:
                 raise Exception(f"Riot API request failed with status: {response.status}")
 
@@ -164,6 +167,7 @@ async def validate_all_players(players, region):
         name, tag = player.strip().split('#')
         data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
         # print(data)
+        
         ret = {
             'name':name,
             'tag':tag,
