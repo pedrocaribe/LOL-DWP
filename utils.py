@@ -17,18 +17,13 @@ from colorama import Back, Fore,Style
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initiating Client Session")
     app.session = ClientSession()
     yield
-    logger.info("Ending Client Session")
     await app.session.close()
 
 app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="templates/")
 app.mount('/static', StaticFiles(directory='static'), name="static")
-
-# Get Logger
-logger = logging.getLogger(__name__)
 
 # Console Styling
 fy = Fore.YELLOW

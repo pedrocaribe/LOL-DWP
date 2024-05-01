@@ -1,19 +1,12 @@
 
 import logging
+from logging.handlers import RotatingFileHandler
 
 import smtplib, ssl
 from email.message import EmailMessage
 
 from settings import *
 from utils import *
-
-# Setup Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] [%(levelname)-8s] %(name)-2s:%(module)-1s : %(message)s", style="%",
-    datefmt='%m/%d/%Y %I:%M:%S %p'
-    )
-logger = logging.getLogger(__name__)
 
 RIOT_DATA = ddragon_data()
 
