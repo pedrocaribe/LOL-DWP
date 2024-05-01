@@ -2,6 +2,7 @@ import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools
 
 from settings import *
 
+from aiohttp import ClientSession
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Awaitable, Any
@@ -112,18 +113,25 @@ def ddragon_data():
         'runes': runes
     }
 
+async def get_session():
+    global session
+    if session is None:
+        session = ClientSession()
+    return session
+
+
 async def fetch_riot_data(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
-            elif response.status == 400 or response.status == 404:
-                return None
-            elif response.status == 429:
-                time.sleep(10)
-                return await fetch_riot_data(url)
-            else:
-                raise Exception(f"Riot API request failed with status: {response.status}")
+    session  = await get_session()
+    async with session.get(url) as response:
+        if response.status == 200:
+            return await response.json()
+        elif response.status == 400 or response.status == 404:
+            return None
+        elif response.status == 429:
+            time.sleep(10)
+            return await fetch_riot_data(url)
+        else:
+            response.raise_for_status()
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
 
