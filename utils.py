@@ -1,13 +1,31 @@
+from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi.responses import JSONResponse, HTMLResponse
+from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+
 import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools, logging
 
 from settings import *
 
 from aiohttp import ClientSession
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from datetime import datetime
 from typing import Awaitable, Any
 from colorama import Back, Fore,Style
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Initiating Client Session")
+    app.session = ClientSession()
+    yield
+    logger.info("Ending Client Session")
+    await app.session.close()
+
+app = FastAPI(lifespan=lifespan)
+templates = Jinja2Templates(directory="templates/")
+app.mount('/static', StaticFiles(directory='static'), name="static")
 
 # Get Logger
 logger = logging.getLogger(__name__)
@@ -113,16 +131,8 @@ def ddragon_data():
         'runes': runes
     }
 
-async def get_session():
-    global session
-    if session is None:
-        session = ClientSession()
-    return session
-
-
-async def fetch_riot_data(url):
-    session  = await get_session()
-    async with session.get(url) as response:
+async def fetch_riot_data(url, app=app):
+    async with app.session.get(url) as response:
         if response.status == 200:
             return await response.json()
         elif response.status == 400 or response.status == 404:
