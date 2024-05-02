@@ -1,29 +1,14 @@
-from fastapi import FastAPI, Request, HTTPException, Form
-from fastapi.responses import JSONResponse, HTMLResponse
-from pydantic import BaseModel
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 
-
-import aiohttp, asyncio, time, datetime, requests, concurrent.futures, functools, logging
+import asyncio, time, datetime, requests, functools, logging
 
 from settings import *
 
-from aiohttp import ClientSession
-from contextlib import contextmanager, asynccontextmanager
+
+from contextlib import contextmanager
 from datetime import datetime
 from typing import Awaitable, Any
 from colorama import Back, Fore,Style
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    app.session = ClientSession()
-    yield
-    await app.session.close()
-
-app = FastAPI(lifespan=lifespan)
-templates = Jinja2Templates(directory="templates/")
-app.mount('/static', StaticFiles(directory='static'), name="static")
 
 # Console Styling
 fy = Fore.YELLOW
@@ -102,7 +87,6 @@ async def run_sequence(*functions: Awaitable[Any]) -> None:
         await function
 
 
-@duration
 def ddragon_data():
 
     VERSION_API = "https://ddragon.leagueoflegends.com/api/versions.json"
@@ -126,7 +110,7 @@ def ddragon_data():
         'runes': runes
     }
 
-async def fetch_riot_data(url, app=app):
+async def fetch_riot_data(url, app):
     async with app.session.get(url) as response:
         if response.status == 200:
             return await response.json()
@@ -134,7 +118,7 @@ async def fetch_riot_data(url, app=app):
             return None
         elif response.status == 429:
             time.sleep(10)
-            return await fetch_riot_data(url)
+            return await fetch_riot_data(url, app)
         else:
             response.raise_for_status()
 
@@ -170,15 +154,14 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
         raise Exception(f"Unknown Riot API {riot_api}")
 
 
-@duration
-async def validate_all_players(players, region):
+async def validate_all_players(players, region, app):
 
     ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
 
     async def validate_puuid(player):
 
         name, tag = player.strip().split('#')
-        data = await fetch_riot_data(f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}')
+        data = await fetch_riot_data(url=f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}', app=app)
         # print(data)
         
         ret = {
@@ -194,15 +177,15 @@ async def validate_all_players(players, region):
 
     return results
 
-@duration
-async def fetch_account_summoner(player, region):
+
+async def fetch_account_summoner(player, region, app):
 
     async def process_accounts(player):
-        data = (await fetch_riot_data(f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}"))
+        data = (await fetch_riot_data(url=f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}", app=app))
         player['summoner'] = data
 
     async def process_rank(player):
-        data = (await fetch_riot_data(f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}"))
+        data = (await fetch_riot_data(url=f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}", app=app))
         player['league'] = data
 
     
@@ -211,24 +194,23 @@ async def fetch_account_summoner(player, region):
         process_rank(player)
     )
 
-async def get_matches(player):
+async def get_matches(player, app):
     MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
-    player["matches"] = (await fetch_riot_data(f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}'))
+    player["matches"] = (await fetch_riot_data(url=f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}', app=app))
 
 
-async def fetch_match_data(match_id, region):
+async def fetch_match_data(match_id, region, app):
     url = await get_url(riot_api="MATCH_V5", region=region)
-    match_data = await fetch_riot_data(f'{url}{match_id}?api_key={RIOT_TOKEN}')
+    match_data = await fetch_riot_data(url=f'{url}{match_id}?api_key={RIOT_TOKEN}', app=app)
     return match_data
 
 
-@duration
-async def fetch_all_matches(match_list, region):
+async def fetch_all_matches(match_list, region, app):
     return_value = {}
 
     # Processing time 1.25 sec
     async def fetch_and_process(match):
-        data = await fetch_match_data(match, region)
+        data = await fetch_match_data(match, region, app)
         return_value[match] = data
 
     tasks = [fetch_and_process(match) for match in match_list]
