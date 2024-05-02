@@ -1,6 +1,15 @@
 
 import logging
 from logging.handlers import RotatingFileHandler
+from contextlib import asynccontextmanager
+
+from aiohttp import ClientSession
+from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi.responses import JSONResponse, HTMLResponse
+from pydantic import BaseModel
+
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 import smtplib, ssl
 from email.message import EmailMessage
@@ -9,6 +18,17 @@ from settings import *
 from utils import *
 
 RIOT_DATA = ddragon_data()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.session = ClientSession()
+    yield
+    await app.session.close()
+
+app = FastAPI(lifespan=lifespan)
+templates = Jinja2Templates(directory="templates/")
+app.mount('/static', StaticFiles(directory='static'), name="static")
+
 
 @app.get('/')
 async def index(request: Request):
@@ -23,32 +43,30 @@ async def search(request: Request):
 @app.api_route('/fetch-data', methods=['GET', 'POST'])
 async def fetch_data(request: Request, RIOT_DATA=RIOT_DATA):
 
-    start = time.time()
-
     form_data = await request.json()
     region = form_data.pop('selected-region')
 
-    players = await validate_all_players(form_data, region)
+    players = await validate_all_players(form_data, region, app)
 
     if players[0]['puuid'] and players[1]['puuid']:
 
-        current_version = (await fetch_riot_data(await get_url(riot_api="VERSION_API")))[0]
+        current_version = (await fetch_riot_data(url=await get_url(riot_api="VERSION_API"), app=app))[0]
         
         if current_version != RIOT_DATA["version"]:
             RIOT_DATA = ddragon_data()
 
         await run_parallel(
-            fetch_account_summoner(players[0], region),
-            fetch_account_summoner(players[1], region),
-            get_matches(players[0]),
-            get_matches(players[1])
+            fetch_account_summoner(players[0], region, app),
+            fetch_account_summoner(players[1], region, app),
+            get_matches(players[0], app),
+            get_matches(players[1], app)
             )
         
         played_with = list((set(players[0]["matches"]).intersection(players[1]["matches"])))
         
         if played_with:
             
-            match_data = await fetch_all_matches(played_with, region=region)
+            match_data = await fetch_all_matches(played_with, region=region, app=app)
             
             matches_count = len(match_data)
 
@@ -67,17 +85,12 @@ async def fetch_data(request: Request, RIOT_DATA=RIOT_DATA):
 
             matches.sort(reverse=True, key=date_sort)
 
-            # logger.info(f'{fy + bg + sb}Preparing to send data to Website{sres}') # Logging
-            
-            end = time.time()
-            logger.info(f"{fw + bb + sb}Execution of backend took {round((end-start), 2)} seconds{sres}") # Logging
-
             return JSONResponse(content={'matches':matches, 'players':players})
         else:
             return JSONResponse(content=players)
         
     else:
-        logger.error(f'{fr + bw}DID NOT FIND PLAYER{sres}') # Logging
+        # logger.error(f'{fr + bw}DID NOT FIND PLAYER{sres}') # Logging
         return JSONResponse(content=players)
         
 if __name__ == "__main__":
