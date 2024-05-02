@@ -14,7 +14,6 @@ from fastapi.staticfiles import StaticFiles
 import smtplib, ssl
 from email.message import EmailMessage
 
-from settings import *
 from utils import *
 
 RIOT_DATA = ddragon_data()
