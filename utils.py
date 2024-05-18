@@ -2,12 +2,14 @@
 import asyncio, time, datetime, requests, functools, logging
 
 from settings import *
+from classes import Player
 
 
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Awaitable, Any
 from colorama import Back, Fore,Style
+from fastapi import FastAPI
 
 
 # Console Styling
@@ -45,36 +47,6 @@ def duration(func):
     return wrapper
 
 
-"""Usage:
-
-Run function_1 and function_2 in parallel through threading:
-
-await run_parallel(
-    function_1(args),
-    function_2(args)
-)
-
-Run function_3 and function_4 in sequence, one after the other:
-
-await run_sequence(
-    function_3(args),
-    function_4(args)
-)
-
-Nested:
-Run function_1, function_2 and run_sequence in parallel, 
-inside run_sequence run function_3 and function_4 in sequence.
-
-await run_parallel(
-    function_1(args),
-    function_2(args),
-    run_sequence(
-        function_3,
-        function_4
-    )
-)
-"""
-
 # Asyncio function to run functions in parallel thread
 @duration
 async def run_parallel(*functions: Awaitable[Any]) -> None:
@@ -87,7 +59,7 @@ async def run_sequence(*functions: Awaitable[Any]) -> None:
         await function
 
 
-def ddragon_data():
+async def ddragon_data(app: FastAPI) -> dict:
 
     VERSION_API = "https://ddragon.leagueoflegends.com/api/versions.json"
     latest_version = requests.get(VERSION_API).json()[0]
@@ -98,9 +70,9 @@ def ddragon_data():
     RUNES_URL = f"http://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/runesReforged.json"
     
     
-    champions = requests.get(CHAMPIONS_URL).json()["data"]
-    spells = requests.get(SPELLS_URL).json()["data"]
-    runes = requests.get(RUNES_URL).json()
+    champions = (await fetch_riot_data(url=CHAMPIONS_URL, app=app))["data"]
+    spells = (await fetch_riot_data(url=SPELLS_URL, app=app))["data"]
+    runes = (await fetch_riot_data(url=RUNES_URL, app=app))
 
     return {
         'version': latest_version,
@@ -110,17 +82,23 @@ def ddragon_data():
         'runes': runes
     }
 
-async def fetch_riot_data(url, app):
+async def fetch_riot_data(url: str, app: FastAPI):
+
+    async def retry_after_sleep():
+        await asyncio.sleep(10)
+        return await fetch_riot_data(url, app)
+    
     async with app.session.get(url) as response:
-        if response.status == 200:
-            return await response.json()
-        elif response.status == 400 or response.status == 404:
-            return None
-        elif response.status == 429:
-            time.sleep(10)
-            return await fetch_riot_data(url, app)
-        else:
-            response.raise_for_status()
+        codes = {
+            200: lambda: response.json(),
+            400: None,
+            404: None,
+            420: retry_after_sleep
+        }
+
+        action = codes.get(response.status, lambda: response.raise_for_status())
+        return await action()
+    
 
 async def get_url(riot_api: str = None, region: str = None, version: str = None):
 
@@ -136,7 +114,8 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
     regional_choice = next((key for key, regions in regional.items() if region in regions), None)
 
     urls = {
-        'ACCOUNT_V1':f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/",
+        'ACCOUNT_V1_riotid':f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/",
+        'ACCOUNT_V1_puuid':f"https://{regional_choice}.api.riotgames.com/riot/account/v1/accounts/by-puuid/",
         'MATCH_V5':f"https://{regional_choice}.api.riotgames.com/lol/match/v5/matches/",
         'SUMMONER_V4':f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/",
         'CHAMPIONS_URL':f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json",
@@ -146,7 +125,8 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
         'LEAGUE_V4':f"https://{region}.api.riotgames.com/lol/league/v4/entries/by-summoner/"
     }
 
-    selected_url = next(value for key, value in urls.items() if riot_api in key)
+    # selected_url = next(value for key, value in urls.items() if riot_api in key)
+    selected_url = urls.get(riot_api)
 
     if selected_url:
         return selected_url
@@ -154,23 +134,22 @@ async def get_url(riot_api: str = None, region: str = None, version: str = None)
         raise Exception(f"Unknown Riot API {riot_api}")
 
 
-async def validate_all_players(players, region, app):
+async def validate_players(players, region, app):
 
-    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1", region=region)
+    ACCOUNT_V1 = await get_url(riot_api="ACCOUNT_V1_riotid", region=region)
 
     async def validate_puuid(player):
 
         name, tag = player.strip().split('#')
         data = await fetch_riot_data(url=f'{ACCOUNT_V1}{name}/{tag}?api_key={RIOT_TOKEN}', app=app)
-        # print(data)
-        
-        ret = {
-            'name':name,
-            'tag':tag,
-            'region':region,
-            'puuid':data['puuid'] if data else None
-        }
-        return ret
+
+        validated_player = Player(
+            name=name,
+            tag=tag,
+            region=region,
+            puuid=data['puuid'] if data else None
+        )
+        return validated_player
 
     tasks = [validate_puuid(player) for _, player in players.items()]
     results = await asyncio.gather(*tasks)
@@ -181,22 +160,22 @@ async def validate_all_players(players, region, app):
 async def fetch_account_summoner(player, region, app):
 
     async def process_accounts(player):
-        data = (await fetch_riot_data(url=f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player['puuid']}?api_key={RIOT_TOKEN}", app=app))
-        player['summoner'] = data
+        data = (await fetch_riot_data(url=f"{await get_url(riot_api="SUMMONER_V4", region=region)}{player.puuid}?api_key={RIOT_TOKEN}", app=app))
+        player.summoner = data
 
     async def process_rank(player):
-        data = (await fetch_riot_data(url=f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player['summoner']['id']}?api_key={RIOT_TOKEN}", app=app))
-        player['league'] = data
-
+        data = (await fetch_riot_data(url=f"{await get_url(riot_api="LEAGUE_V4", region=region)}{player.summoner['id']}?api_key={RIOT_TOKEN}", app=app))
+        player.league = data
     
     await run_sequence(
         process_accounts(player),
         process_rank(player)
     )
 
+
 async def get_matches(player, app):
-    MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player["region"])
-    player["matches"] = (await fetch_riot_data(url=f'{MATCH_V5}by-puuid/{player["puuid"]}/ids?start=0&count=100&api_key={RIOT_TOKEN}', app=app))
+    MATCH_V5 = await get_url(riot_api="MATCH_V5", region=player.region)
+    player.matches = (await fetch_riot_data(url=f'{MATCH_V5}by-puuid/{player.puuid}/ids?start=0&count=100&api_key={RIOT_TOKEN}', app=app))
 
 
 async def fetch_match_data(match_id, region, app):
@@ -206,12 +185,11 @@ async def fetch_match_data(match_id, region, app):
 
 
 async def fetch_all_matches(match_list, region, app):
-    return_value = {}
+    return_value = []
 
-    # Processing time 1.25 sec
     async def fetch_and_process(match):
         data = await fetch_match_data(match, region, app)
-        return_value[match] = data
+        return_value.append(data)
 
     tasks = [fetch_and_process(match) for match in match_list]
     results = await asyncio.gather(*tasks)
@@ -224,10 +202,10 @@ async def match_dict(id, data, players):
     ret_dict = {}
 
     # Player 1
-    ret_dict['puuid_p1'] = players[0]['puuid']
-    ret_dict['summ_name_p1'] = players[0]['name']
-    ret_dict['tag_line_p1'] = players[0]['tag']
-    ret_dict['idx_p1'] = data['metadata']['participants'].index(players[0]['puuid'])
+    ret_dict['puuid_p1'] = players[0].puuid
+    ret_dict['summ_name_p1'] = players[0].name
+    ret_dict['tag_line_p1'] = players[0].tag
+    ret_dict['idx_p1'] = data['metadata']['participants'].index(players[0].puuid)
     ret_dict['stats_p1'] = data['info']['participants'][ret_dict['idx_p1']]
     ret_dict['level_p1'] = ret_dict['stats_p1']['champLevel']
     ret_dict['champion_id_p1'] = ret_dict['stats_p1']['championId']
@@ -246,10 +224,10 @@ async def match_dict(id, data, players):
     ret_dict['rune_2_p1'] = ret_dict['stats_p1']['perks']['styles'][1]['selections'][0]['perk']
 
     # Player 2
-    ret_dict['puuid_p2'] = players[1]['puuid']
-    ret_dict['summ_name_p2'] = players[1]['name']
-    ret_dict['tag_line_p2'] = players[1]['tag']
-    ret_dict['idx_p2'] = data['metadata']['participants'].index(players[1]['puuid'])
+    ret_dict['puuid_p2'] = players[1].puuid
+    ret_dict['summ_name_p2'] = players[1].name
+    ret_dict['tag_line_p2'] = players[1].tag
+    ret_dict['idx_p2'] = data['metadata']['participants'].index(players[1].puuid)
     ret_dict['stats_p2'] = data['info']['participants'][ret_dict['idx_p2']]
     ret_dict['level_p2'] = ret_dict['stats_p2']['champLevel']
     ret_dict['champion_id_p2'] = ret_dict['stats_p2']['championId']
@@ -269,23 +247,13 @@ async def match_dict(id, data, players):
 
     # Match
     ret_dict['match_id'] = id
-    ret_dict['region'] = players[0]['region']
+    ret_dict['region'] = players[0].region
     ret_dict['same_team'] = True if ret_dict['win_lose_p1'] == ret_dict['win_lose_p2'] else False
     ret_dict['creation'] = datetime.fromtimestamp(data['info']['gameCreation']/1000).strftime("%Y-%m-%d %H:%M")
     ret_dict['creation_time_ago'] = await time_ago(data['info']['gameCreation'])
     ret_dict['duration'] = f"{data['info']['gameDuration']//60}:{data['info']['gameDuration']%60:02}" # use zfill to fill with 0
     ret_dict['game_mode'] = data['info']['gameMode']
     return ret_dict
-
-
-
-
-
-
-
-
-
-
 
 
 
